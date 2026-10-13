@@ -18,3 +18,15 @@ Outputs include `config.json`, `splits.json`, `feature_definitions.jsonl`, `raw_
 `probe_regularization.py` reuses fixed saved features to compare training-only scaling plus Ridge, with and without training-derived 99.5th-percentile clipping. It tunes Ridge alpha on the inner validation rows and writes `ridge_probe.csv`. It is exploratory: the optimizers still selected these features under the original linear regression objective.
 
 Run `python -m unittest -q test_milestone1.py` for preprocessing, feature scaling, GP mutation, exact budget, decoder, test isolation, and stability checks. The notebook is an entry point to the same benchmark code. Dependency versions are pinned in `requirements.txt`; CI runs the tests and validates the notebook.
+
+## Milestone 2: controlled continuous comparison
+
+```powershell
+python benchmark_continuous.py --smoke --budget 80 --output results/milestone2_smoke
+python benchmark_continuous.py --output results/milestone2
+python -m unittest -q test_milestone1.py test_milestone2.py
+```
+
+The full command runs GA, PSO, ES, DE/rand/1/bin, and CMA-ES on California Housing and Diabetes: five outer splits, five optimizer seeds, and 1,000 validation-MAE evaluations per run (250 runs total). These are **controlled continuous variants**, separate from the original mixed-variable methods and GP. Every candidate is a 2-by-d matrix of coefficients in [-1, 1]. The decoder retains all training-standardized original inputs and adds `(X @ W.T) ** 2` as two features. All five methods use the same decoder, inner training/validation split, `LinearRegression` fitness, and held-out test protocol. GA, PSO, ES, and DE start populations uniformly in the bounds; CMA-ES starts with a uniformly sampled mean and draws its own Gaussian population. Each method gets a reproducible stream from its optimizer seed. Equal evaluations control search effort, while runtime is reported separately.
+
+`results/milestone2/` contains `raw_results.csv` (test MAE, RMSE, R², maximum absolute residual, runtime, count), `performance.csv`, split-paired comparisons, per-evaluation convergence and its plot, coefficients, worst five test residuals per run, synthetic-feature magnitudes, one-to-one matched stability, split indices, and a versioned configuration. The inner training data alone determines preprocessing and the downstream fit. This experiment does not add clipping or regularization; those changes belong to a separately defined robustness experiment. The Milestone 1 results remain under their existing directories.

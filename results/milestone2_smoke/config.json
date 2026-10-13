@@ -1,0 +1,91 @@
+{
+  "protocol": "milestone2_controlled_continuous",
+  "datasets": {
+    "California Housing": [
+      "dataset/California.csv",
+      "MedHouseVal"
+    ],
+    "Diabetes Progression": [
+      "dataset/Diabetes.csv",
+      "target"
+    ]
+  },
+  "methods": [
+    "GA",
+    "PSO",
+    "ES",
+    "DE",
+    "CMA-ES"
+  ],
+  "outer_seeds": [
+    11,
+    23,
+    42,
+    67,
+    89
+  ],
+  "optimizer_seeds": [
+    101,
+    211,
+    307,
+    401,
+    503
+  ],
+  "optimizer_settings": {
+    "GA": {
+      "population": 40,
+      "tournament": 2,
+      "per_coefficient_mutation_probability": "1/dimension",
+      "mutation_sd": 0.15,
+      "elite": 1
+    },
+    "PSO": {
+      "particles": 40,
+      "inertia": 0.7,
+      "cognitive": 1.4,
+      "social": 1.4,
+      "initial_velocity": [
+        -0.1,
+        0.1
+      ]
+    },
+    "ES": {
+      "parents": 20,
+      "offspring": 40,
+      "selection": "mu+lambda",
+      "mutation_sd": 0.15
+    },
+    "DE": {
+      "population": 40,
+      "strategy": "rand/1/bin",
+      "differential_weight": 0.8,
+      "crossover_probability": 0.9
+    },
+    "CMA-ES": {
+      "population": 20,
+      "initial_sigma": 0.3,
+      "backend": "pycma ask/tell"
+    }
+  },
+  "budget": 80,
+  "outer_test_fraction": 0.2,
+  "inner_validation_fraction": 0.25,
+  "input_scaling": "training-only StandardScaler",
+  "representation": "all original features plus two squared linear combinations",
+  "coefficient_bounds": [
+    -1.0,
+    1.0
+  ],
+  "initialization": "uniform [-1,1] (CMA-ES initial mean only)",
+  "objective": "inner validation MAE",
+  "downstream_model": "LinearRegression fitted on inner training set",
+  "smoke": true,
+  "versions": {
+    "python": "3.13.9",
+    "numpy": "2.3.3",
+    "pandas": "2.3.3",
+    "scipy": "1.16.2",
+    "scikit_learn": "1.7.2",
+    "cma": "4.5.0"
+  }
+}
