@@ -9,6 +9,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.optimize import linear_sum_assignment
 from sklearn.linear_model import ElasticNet, Lasso, LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import PolynomialFeatures
@@ -85,24 +86,27 @@ def tuned_baseline(name, train, val, test, y_train, y_val):
 
 def instrument(optimizer, counter, method):
     original = getattr(optimizer, method)
+    optimizer.evaluation_counter = counter
     setattr(optimizer, method, lambda candidate: counter.evaluate(original, candidate))
 
 
-def optimize(name, train, val, y_train, y_val, seed, counter, mode="combined", hybrid=False):
+def optimize(name, train, val, y_train, y_val, seed, counter, mode="combined", hybrid=False,
+             equal_budget=True):
     np.random.seed(seed)
     random.seed(seed)
     if name == "GA":
-        config = {**GA_CONFIG, "n_gens": 24} if hybrid else GA_CONFIG
+        config = {**GA_CONFIG, "n_gens": 24 if hybrid else 41} if (hybrid or equal_budget) else GA_CONFIG
         optimizer = GeneticAlgorithm(train, val, y_train, y_val, seed=seed, mode=mode, **config)
         instrument(optimizer, counter, "fitness")
         frame = optimizer.individual_to_dataframe
     elif name == "PSO":
-        config = {**PSO_CONFIG, "n_iters": 24} if hybrid else PSO_CONFIG
+        config = {**PSO_CONFIG, "n_iters": 24 if hybrid else 41} if (hybrid or equal_budget) else PSO_CONFIG
         optimizer = PSO(train, val, y_train, y_val, seed=seed, mode=mode, **config)
         instrument(optimizer, counter, "fitness_particle")
         frame = optimizer.particle_df
     else:
-        config = {**ES_CONFIG, "mu": 10, "lambda_": 20} if hybrid else ES_CONFIG
+        config = ({**ES_CONFIG, "mu": 10, "lambda_": 20} if hybrid else
+                  {**ES_CONFIG, "n_gens": 28} if equal_budget else ES_CONFIG)
         optimizer = EvolutionStrategy(train, val, y_train, y_val, seed=seed, mode=mode, **config)
         instrument(optimizer, counter, "fitness")
         frame = optimizer.individual_to_df
@@ -117,28 +121,57 @@ def optimize(name, train, val, y_train, y_val, seed, counter, mode="combined", h
     return individual, lambda X: frame(individual, X), plain(individual)
 
 
-def run_split(dataset, X, y, split_number, outer_seed, optimizer_seeds, limit=BUDGET):
+def run_split(dataset, X, y, split_number, outer_seed, optimizer_seeds, limit=BUDGET,
+              equal_budget=True):
     train, val, test, y_train, y_val, y_test, indices = split_and_preprocess(
         X, y, outer_seed, return_indices=True)
     rows, traces, definitions, signatures = [], [], [], []
+    diagnostics = {"residuals": [], "features": []}
 
     def record(method, seed, started, train_features, val_features, test_features,
                counter=None, definition=None, selected=None):
+        if equal_budget and counter.count != limit:
+            raise AssertionError(f"{method} used {counter.count} of {limit} evaluations")
         model = LinearRegression().fit(train_features, y_train) if counter else None
         if model is None:
             raise ValueError("Baseline model must be recorded separately")
+        prediction = model.predict(test_features)
+        residuals = np.asarray(y_test) - prediction
+        coefficients = np.ravel(model.coef_)
+        feature_names = list(test_features.columns)
         row = {"dataset": dataset, "split": split_number, "outer_seed": outer_seed,
-               "optimizer_seed": seed, "method": method, **regression_metrics(y_test, model.predict(test_features)),
+               "optimizer_seed": seed, "method": method, **regression_metrics(y_test, prediction),
                "validation_MAE": float(mean_absolute_error(y_val, model.predict(val_features))),
                "runtime_seconds": time.perf_counter() - started,
-               "feature_count": int(train_features.shape[1]), "fitness_evaluations": counter.count}
+               "feature_count": int(train_features.shape[1]), "fitness_evaluations": counter.count,
+               "max_abs_test_residual": float(np.max(np.abs(residuals)))}
         rows.append(row)
+        for position in np.argsort(np.abs(residuals))[-5:][::-1]:
+            values = test_features.iloc[position].to_numpy()
+            largest = int(np.argmax(np.abs(values * coefficients)))
+            diagnostics["residuals"].append({"dataset": dataset, "split": split_number,
+                "optimizer_seed": seed, "method": method, "test_row_index": int(test.index[position]),
+                "actual": float(np.asarray(y_test)[position]), "predicted": float(prediction[position]),
+                "residual": float(residuals[position]), "abs_residual": float(abs(residuals[position])),
+                "largest_contribution_feature": feature_names[largest],
+                "feature_value": float(values[largest]), "coefficient": float(coefficients[largest]),
+                "contribution": float(values[largest] * coefficients[largest])})
         definitions.append({"dataset": dataset, "split": split_number, "optimizer_seed": seed,
                             "method": method, "input_columns": list(train.columns), "definition": definition})
         traces.extend({"dataset": dataset, "split": split_number, "optimizer_seed": seed,
                        "method": method, "evaluations": count, "validation_MAE": score}
                       for count, score in counter.history)
         synthetic = [c for c in val_features.columns if str(c).startswith(("synth_", "GP_feature"))]
+        for name in synthetic:
+            train_abs = np.abs(train_features[name].to_numpy())
+            test_abs = np.abs(test_features[name].to_numpy())
+            train_p99 = float(np.percentile(train_abs, 99))
+            diagnostics["features"].append({"dataset": dataset, "split": split_number,
+                "optimizer_seed": seed, "method": method, "feature": name,
+                "train_abs_p99": train_p99, "train_abs_max": float(train_abs.max()),
+                "test_abs_max": float(test_abs.max()), "test_abs_p99": float(np.percentile(test_abs, 99)),
+                "test_to_train_p99_ratio": float(test_abs.max() / max(train_p99, 1e-12)),
+                "coefficient": float(coefficients[feature_names.index(name)])})
         signatures.append({"dataset": dataset, "split": split_number, "method": method,
                            "seed": seed, "selected": selected or [],
                            "constructed": val_features[synthetic].to_numpy().T.tolist()})
@@ -159,9 +192,11 @@ def run_split(dataset, X, y, split_number, outer_seed, optimizer_seeds, limit=BU
         for name in ("GA", "PSO", "ES"):
             for mode in ("selection", "construction", "combined"):
                 started, counter = time.perf_counter(), EvaluationCounter(limit)
-                individual, apply, definition = optimize(name, train, val, y_train, y_val, seed, counter, mode)
+                individual, apply, definition = optimize(name, train, val, y_train, y_val, seed,
+                                                         counter, mode, equal_budget=equal_budget)
                 train_f, val_f, test_f = (apply(part) for part in (train, val, test))
-                selected = [c for c, keep in zip(train.columns, individual["mask"]) if keep]
+                selected = (list(train.columns) if mode == "construction" else
+                            [c for c, keep in zip(train.columns, individual["mask"]) if keep])
                 normalization = es_normalization(individual, train) if name == "ES" and mode != "selection" else []
                 record(f"{name} {mode}", seed, started, train_f, val_f, test_f, counter,
                        {"kind": name, "mode": mode, "individual": definition,
@@ -181,14 +216,16 @@ def run_split(dataset, X, y, split_number, outer_seed, optimizer_seeds, limit=BU
                        {"kind": "GP", **gp_definition}, list(train.columns))
             else:
                 individual, apply, definition = optimize(second, gp_train, gp_val, y_train, y_val,
-                                                         seed, counter, hybrid=True)
+                                                         seed, counter, hybrid=True,
+                                                         equal_budget=equal_budget)
                 train_f, val_f, test_f = (apply(part) for part in (gp_train, gp_val, gp_test))
-                selected = [c for c, keep in zip(gp_train.columns, individual["mask"]) if keep]
+                selected = [c for c, keep in zip(gp_train.columns, individual["mask"])
+                            if keep and c != "GP_feature"]
                 record(f"GP + {second}", seed, started, train_f, val_f, test_f, counter,
                        {"kind": f"GP + {second}", "gp_feature": gp_definition,
                         "individual": definition,
                         "normalization": es_normalization(individual, gp_train) if second == "ES" else []}, selected)
-    return rows, traces, definitions, signatures, indices
+    return rows, traces, definitions, signatures, indices, diagnostics
 
 
 def stability(signatures):
@@ -201,19 +238,26 @@ def stability(signatures):
         for a, b in combinations(group, 2):
             sa, sb = set(a["selected"]), set(b["selected"])
             jaccard = len(sa & sb) / len(sa | sb) if sa | sb else np.nan
-            correlations = []
-            for x in a["constructed"]:
-                for y in b["constructed"]:
-                    if np.std(x) > 1e-12 and np.std(y) > 1e-12:
-                        correlations.append(abs(np.corrcoef(x, y)[0, 1]))
+            constructed_a, constructed_b = a["constructed"], b["constructed"]
+            similarity = np.nan
+            if constructed_a and constructed_b:
+                correlations = np.zeros((len(constructed_a), len(constructed_b)))
+                for i, x in enumerate(constructed_a):
+                    for j, y in enumerate(constructed_b):
+                        if np.std(x) > 1e-12 and np.std(y) > 1e-12:
+                            correlations[i, j] = abs(np.corrcoef(x, y)[0, 1])
+                matches = linear_sum_assignment(-correlations)
+                similarity = float(correlations[matches].sum() /
+                                   max(len(constructed_a), len(constructed_b)))
             rows.append({"dataset": key[0], "split": key[1], "method": key[2],
                          "seed_a": a["seed"], "seed_b": b["seed"],
                          "selection_jaccard": jaccard,
-                         "constructed_similarity": max(correlations) if correlations else np.nan})
-    return pd.DataFrame(rows)
+                         "constructed_similarity": similarity})
+    return pd.DataFrame(rows, columns=["dataset", "split", "method", "seed_a", "seed_b",
+                                       "selection_jaccard", "constructed_similarity"])
 
 
-def save_analysis(rows, traces, definitions, signatures, splits, output):
+def save_analysis(rows, traces, definitions, signatures, splits, output, diagnostics=None):
     output.mkdir(parents=True, exist_ok=True)
     raw = pd.DataFrame(rows)
     raw.to_csv(output / "raw_results.csv", index=False)
@@ -244,6 +288,9 @@ def save_analysis(rows, traces, definitions, signatures, splits, output):
     ablation.columns = [f"{metric}_{stat}" for metric, stat in ablation.columns]
     ablation.reset_index().to_csv(output / "ablation.csv", index=False)
     stability(signatures).to_csv(output / "stability.csv", index=False)
+    if diagnostics is not None:
+        pd.DataFrame(diagnostics["residuals"]).to_csv(output / "extreme_residuals.csv", index=False)
+        pd.DataFrame(diagnostics["features"]).to_csv(output / "feature_diagnostics.csv", index=False)
     traces_frame = pd.DataFrame(traces)
     if not traces_frame.empty:
         fig, axes = plt.subplots(1, 2, figsize=(14, 5))
@@ -260,13 +307,19 @@ def save_analysis(rows, traces, definitions, signatures, splits, output):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=Path, default=Path("results/milestone1"))
+    parser.add_argument("--output", type=Path)
     parser.add_argument("--smoke", action="store_true", help="One split, one optimizer seed, first 200 rows")
+    parser.add_argument("--legacy-budget", action="store_true", help="Reproduce the original unequal evaluation counts")
     args = parser.parse_args()
+    if args.output is None:
+        args.output = Path("results/legacy_reproduction" if args.legacy_budget else "results/equal_budget")
     config = {"outer_seeds": OUTER_SEEDS, "optimizer_seeds": OPTIMIZER_SEEDS,
               "budget": BUDGET, "outer_test_fraction": 0.2, "inner_validation_fraction": 0.25,
               "datasets": DATASETS, "smoke": args.smoke,
-              "optimizer_config": {"GA": GA_CONFIG, "PSO": PSO_CONFIG, "ES": ES_CONFIG,
+              "protocol": "legacy" if args.legacy_budget else "equal_budget",
+              "optimizer_config": {"GA": {**GA_CONFIG, "n_gens": 20 if args.legacy_budget else 41},
+                                   "PSO": {**PSO_CONFIG, "n_iters": 20 if args.legacy_budget else 41},
+                                   "ES": {**ES_CONFIG, "n_gens": 20 if args.legacy_budget else 28},
                                    "GP": GP_CONFIG, "hybrid_GP": HYBRID_GP_CONFIG,
                                    "hybrid_GA_generations": 24, "hybrid_PSO_iterations": 24,
                                    "hybrid_ES": {"mu": 10, "lambda": 20, "n_gens": 20}},
@@ -275,6 +328,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     (args.output / "config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
     rows, traces, definitions, signatures, splits = [], [], [], [], {}
+    diagnostics = {"residuals": [], "features": []}
     for dataset, (path, target) in DATASETS.items():
         X, y = load_dataset(path, target)
         if args.smoke:
@@ -283,11 +337,14 @@ def main():
         for number, seed in enumerate(OUTER_SEEDS[:1] if args.smoke else OUTER_SEEDS):
             print(f"{dataset}, split {number + 1}", flush=True)
             result = run_split(dataset, X, y, number, seed,
-                               OPTIMIZER_SEEDS[:1] if args.smoke else OPTIMIZER_SEEDS)
+                               OPTIMIZER_SEEDS[:1] if args.smoke else OPTIMIZER_SEEDS,
+                               equal_budget=not args.legacy_budget)
             for target_list, values in zip((rows, traces, definitions, signatures), result[:4]):
                 target_list.extend(values)
             splits[dataset].append({"outer_seed": seed, **result[4]})
-            save_analysis(rows, traces, definitions, signatures, splits, args.output)
+            for key in diagnostics:
+                diagnostics[key].extend(result[5][key])
+            save_analysis(rows, traces, definitions, signatures, splits, args.output, diagnostics)
     print(f"Saved {len(rows)} runs to {args.output}")
 
 

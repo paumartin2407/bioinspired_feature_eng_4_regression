@@ -1,0 +1,81 @@
+{
+  "outer_seeds": [
+    11,
+    23,
+    42,
+    67,
+    89
+  ],
+  "optimizer_seeds": [
+    101,
+    211,
+    307,
+    401,
+    503
+  ],
+  "budget": 1000,
+  "outer_test_fraction": 0.2,
+  "inner_validation_fraction": 0.25,
+  "datasets": {
+    "California Housing": [
+      "dataset/California.csv",
+      "MedHouseVal"
+    ],
+    "Diabetes Progression": [
+      "dataset/Diabetes.csv",
+      "target"
+    ]
+  },
+  "smoke": false,
+  "protocol": "equal_budget",
+  "optimizer_config": {
+    "GA": {
+      "pop_size": 24,
+      "n_gens": 41,
+      "r_synth": 2,
+      "verbose": false
+    },
+    "PSO": {
+      "n_particles": 24,
+      "n_iters": 41,
+      "r_synth": 2,
+      "verbose": false
+    },
+    "ES": {
+      "mu": 12,
+      "lambda_": 24,
+      "n_gens": 28,
+      "r_synth": 2,
+      "verbose": false
+    },
+    "GP": {
+      "pop_size": 40,
+      "n_gens": 24,
+      "max_depth": 4
+    },
+    "hybrid_GP": {
+      "pop_size": 40,
+      "n_gens": 9,
+      "max_depth": 4
+    },
+    "hybrid_GA_generations": 24,
+    "hybrid_PSO_iterations": 24,
+    "hybrid_ES": {
+      "mu": 10,
+      "lambda": 20,
+      "n_gens": 20
+    }
+  },
+  "baseline_alpha_grid": [
+    0.01,
+    0.1,
+    1.0,
+    10.0,
+    100.0
+  ],
+  "elastic_net_l1_ratio_grid": [
+    0.2,
+    0.5,
+    0.8
+  ]
+}

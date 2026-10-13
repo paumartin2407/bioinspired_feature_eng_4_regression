@@ -6,10 +6,14 @@ import numpy as np
 import pandas as pd
 
 from data import load_dataset, split_and_preprocess
-from benchmark import es_normalization, stability
+from benchmark import es_normalization, stability, instrument, tuned_baseline
 from evaluation import EvaluationCounter
 from features import candidate_frame
-from optimizers import EvolutionStrategy, GeneticProgrammingFeatureEngineer
+from optimizers import EvolutionStrategy, GeneticAlgorithm, GeneticProgrammingFeatureEngineer, PSO
+from replay_diagnostics import restore_tree
+from compare_budgets import compare
+from refresh_stability import selected_features
+from probe_regularization import fit_probe
 
 
 class MilestoneOneTests(unittest.TestCase):
@@ -69,6 +73,114 @@ class MilestoneOneTests(unittest.TestCase):
         result = stability(signatures).iloc[0]
         self.assertAlmostEqual(result.selection_jaccard, 0.5)
         self.assertAlmostEqual(result.constructed_similarity, 1.0)
+
+    def test_stability_matches_each_constructed_feature_once(self):
+        signatures = [
+            {"dataset": "D", "split": 0, "method": "GA", "seed": 1, "selected": ["x"],
+             "constructed": [[1., 2., 3., 4.], [4., 3., 2., 1.]]},
+            {"dataset": "D", "split": 0, "method": "GA", "seed": 2, "selected": ["x"],
+             "constructed": [[1., 2., 3., 4.], [1., -1., -1., 1.]]},
+        ]
+        self.assertAlmostEqual(stability(signatures).iloc[0].constructed_similarity, 0.5)
+
+    def test_exact_budget_including_partial_generation(self):
+        X = pd.DataFrame({"x": np.linspace(-1, 1, 16), "z": np.linspace(1, 2, 16)})
+        y = X.x * 2 + X.z
+        optimizers = [
+            (GeneticAlgorithm(X, X, y, y, pop_size=4, n_gens=5, r_synth=1,
+                              seed=5, verbose=False), "fitness"),
+            (PSO(X, X, y, y, n_particles=4, n_iters=5, r_synth=1,
+                 seed=5, verbose=False), "fitness_particle"),
+            (EvolutionStrategy(X, X, y, y, mu=3, lambda_=4, n_gens=5, r_synth=1,
+                               seed=5, verbose=False), "fitness"),
+            (GeneticProgrammingFeatureEngineer(X, X, y, y, pop_size=4, n_gens=5,
+                                               max_depth=2, seed=5), "_evaluate_individual"),
+        ]
+        for optimizer, method in optimizers:
+            with self.subTest(optimizer=type(optimizer).__name__):
+                counter = EvaluationCounter(10)
+                instrument(optimizer, counter, method)
+                optimizer.run()
+                self.assertEqual(counter.count, 10)
+                self.assertEqual(len(counter.history), 10)
+
+    def test_decoding_matches_optimizer_fitness_features(self):
+        X = pd.DataFrame({"x": [0., 1., 2., 3.], "z": [1., 2., 3., 4.]})
+        y = pd.Series([1., 2., 3., 4.])
+        ga = GeneticAlgorithm(X, X, y, y, r_synth=1, seed=3, verbose=False)
+        individual = ga.make_individual()
+        pd.testing.assert_frame_equal(ga.individual_to_dataframe(individual, X),
+                                      candidate_frame(individual, X, "GA"))
+        pso = PSO(X, X, y, y, r_synth=1, seed=3, verbose=False)
+        vector = np.array([1., -1., 0.2, 0.4, 1.])
+        decoded = {"mask": np.array([1, 0]), "coefs": np.array([[0.2, 0.4]]),
+                   "type_mask": np.array([1])}
+        pd.testing.assert_frame_equal(pso.particle_df(vector, X),
+                                      candidate_frame(decoded, X, "PSO"))
+
+    def test_outer_test_changes_cannot_change_training_or_validation(self):
+        X = pd.DataFrame({"x": np.arange(40, dtype=float), "z": np.arange(40, dtype=float) ** 2})
+        y = pd.Series(np.arange(40, dtype=float))
+        original = split_and_preprocess(X, y, 11, return_indices=True)
+        changed = X.copy()
+        changed.loc[original[-1]["test"], "x"] = 1e9
+        changed_y = y.copy()
+        changed_y.loc[original[-1]["test"]] = -1e9
+        modified = split_and_preprocess(changed, changed_y, 11, return_indices=True)
+        for index in (0, 1, 3, 4):
+            assertion = pd.testing.assert_frame_equal if index < 3 else pd.testing.assert_series_equal
+            assertion(original[index], modified[index])
+
+    def test_saved_gp_tree_can_be_reconstructed(self):
+        definition = {"operator": "+", "left": {"feature": 0, "name": "x"},
+                      "right": {"operator": "sqrt", "child": {"constant": -4.0}}}
+        tree = restore_tree(definition)
+        np.testing.assert_allclose(tree.evaluate(np.array([[1.], [3.]])), [3., 5.])
+
+    def test_budget_comparison_matches_runs_by_seed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            old, new = root / "old", root / "new"
+            old.mkdir()
+            new.mkdir()
+            base = {"dataset": ["D"], "split": [0], "method": ["GA"],
+                    "optimizer_seed": [101], "MAE": [2.], "RMSE": [3.], "R2": [0.1]}
+            pd.DataFrame(base).to_csv(old / "raw_results.csv", index=False)
+            pd.DataFrame({**base, "MAE": [1.5]}).to_csv(new / "raw_results.csv", index=False)
+            result = compare(old, new, root / "comparison.csv")
+            self.assertAlmostEqual(result.delta_MAE.iloc[0], -0.5)
+
+    def test_baseline_tuning_ignores_test_values(self):
+        train = pd.DataFrame({"x": np.arange(12, dtype=float), "z": np.arange(12, dtype=float) ** 2})
+        val = pd.DataFrame({"x": [12., 13., 14.], "z": [144., 169., 196.]})
+        test = pd.DataFrame({"x": [15., 16.], "z": [225., 256.]})
+        y_train = pd.Series(np.arange(12, dtype=float))
+        y_val = pd.Series([12., 13., 14.])
+        for name in ("Ridge", "Lasso", "Elastic Net", "Polynomial + Ridge"):
+            with self.subTest(name=name):
+                first = tuned_baseline(name, train, val, test, y_train, y_val)[-1]
+                second = tuned_baseline(name, train, val, test * 1e9, y_train, y_val)[-1]
+                self.assertEqual(first, second)
+
+    def test_construction_stability_uses_actual_original_features(self):
+        record = {"method": "PSO construction", "input_columns": ["x", "z"],
+                  "definition": {"individual": {"mask": [0, 1]}}}
+        self.assertEqual(selected_features(record), {"x", "z"})
+        record["method"] = "GP + PSO"
+        record["input_columns"] = ["x", "GP_feature"]
+        record["definition"]["individual"]["mask"] = [1, 1]
+        self.assertEqual(selected_features(record), {"x"})
+
+    def test_ridge_probe_tunes_without_test_data(self):
+        train = pd.DataFrame({"x": np.arange(12, dtype=float)})
+        val = pd.DataFrame({"x": [12., 13.]})
+        test = pd.DataFrame({"x": [14., 15.]})
+        y_train = pd.Series(np.arange(12, dtype=float))
+        y_val = pd.Series([12., 13.])
+        for clipped in (False, True):
+            first = fit_probe(train, val, test, y_train, y_val, clipped=clipped)
+            second = fit_probe(train, val, test * 1e9, y_train, y_val, clipped=clipped)
+            self.assertEqual(first[1], second[1])
 
 
 if __name__ == "__main__":

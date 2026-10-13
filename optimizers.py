@@ -8,6 +8,11 @@ from sklearn.metrics import mean_absolute_error
 from evaluation import train_model
 from features import candidate_frame
 
+
+def remaining_evaluations(optimizer):
+    counter = getattr(optimizer, "evaluation_counter", None)
+    return counter.remaining if counter is not None else float("inf")
+
 class GeneticAlgorithm:
     """
     Operadores: Tournament, Uniform Crossover, BLX-Alpha, Gaussian Mutation, Elitism.
@@ -206,6 +211,8 @@ class GeneticAlgorithm:
             print(f"Iniciando GA ({self.n_gens} gens) con BLX-Alpha y Uniform Crossover...")
 
         for gen in range(self.n_gens):
+            if remaining_evaluations(self) == 0:
+                break
             new_pop = []
             
             # 2. Elitismo
@@ -239,15 +246,22 @@ class GeneticAlgorithm:
                     child = self.mutate(child)
                 new_pop.append(child)
 
-            pop = new_pop
-            fitnesses = [self.fitness(ind) for ind in pop]
-            best_gen = float(min(fitnesses))
+            evaluated = min(len(new_pop), remaining_evaluations(self))
+            new_fitnesses = [self.fitness(ind) for ind in new_pop[:evaluated]]
+            candidate_idx = int(np.argmin(new_fitnesses))
+            if new_fitnesses[candidate_idx] < best_global_fit:
+                best_global_fit = new_fitnesses[candidate_idx]
+                best_global_ind = deepcopy(new_pop[candidate_idx])
             
             # Guardar histórico
             history.append(best_global_fit)
             
             if self.verbose and gen % 10 == 0:
                 print(f"Gen {gen}: Best MAE = {best_global_fit:.4f}")
+
+            if evaluated < len(new_pop):
+                break
+            pop, fitnesses = new_pop, new_fitnesses
 
         final_idx = int(np.argmin(fitnesses))
         if fitnesses[final_idx] < best_global_fit:
@@ -396,6 +410,9 @@ class PSO:
 
         iterator = trange(self.n_iters, desc="PSO Running", disable=not self.verbose)
         for it in iterator:
+            remaining = remaining_evaluations(self)
+            if remaining == 0:
+                break
             # Update Vectorizado
             r1, r2 = self.rng.random((self.n_particles, self.dim)), self.rng.random((self.n_particles, self.dim))
             vel = self.w * vel + self.c1 * r1 * (pbest_pos - pos) + self.c2 * r2 * (gbest_pos - pos)
@@ -403,7 +420,7 @@ class PSO:
             pos += vel
             
             # Evaluación
-            for i in range(self.n_particles):
+            for i in range(min(self.n_particles, remaining)):
                 fit = self.fitness_particle(pos[i])
                 if fit < pbest_val[i]:
                     pbest_val[i] = fit
@@ -531,6 +548,9 @@ class EvolutionStrategy:
         iterator = trange(self.n_gens, desc="Evolving", disable=not self.verbose)
 
         for g in range(self.n_gens):
+            remaining = remaining_evaluations(self)
+            if remaining == 0:
+                break
             mutation_rate = self.mutation_max * (1 - g / self.n_gens)
 
             offspring = []
@@ -541,7 +561,8 @@ class EvolutionStrategy:
                 offspring.append(child)
 
             all_individuals = population + offspring
-            fitnesses = [self.fitness(ind) for ind in all_individuals]
+            evaluated = min(len(all_individuals), remaining)
+            fitnesses = [self.fitness(ind) for ind in all_individuals[:evaluated]]
 
             sorted_idx = np.argsort(fitnesses)
             population = [all_individuals[i] for i in sorted_idx[:self.mu]]
@@ -553,6 +574,8 @@ class EvolutionStrategy:
             self.history.append(best_mae)
             if self.verbose and g % 10 == 0:
                 iterator.set_description(f"Best MAE: {best_mae:.4f} ")
+            if evaluated < len(all_individuals):
+                break
 
     
         X_train_opt = self.individual_to_df(best_ind, self.X_train)
@@ -740,6 +763,8 @@ class GeneticProgrammingFeatureEngineer:
         
         iterator = trange(self.n_gens, desc="Evolving", disable=not self.verbose)
         for g in iterator:
+            if remaining_evaluations(self) == 0:
+                break
             new_pop = []
             # Elitismo
             best_idx = np.argmin(fits)
@@ -762,8 +787,15 @@ class GeneticProgrammingFeatureEngineer:
                 else: child = deepcopy(parent)
                 new_pop.append(child)
             
-            pop = new_pop
-            fits = [self._evaluate_individual(t) for t in pop]
+            evaluated = min(len(new_pop), remaining_evaluations(self))
+            new_fits = [self._evaluate_individual(t) for t in new_pop[:evaluated]]
+            if evaluated < len(new_pop):
+                candidate_idx = int(np.argmin(new_fits))
+                if new_fits[candidate_idx] < best_glob_fit:
+                    best_glob_fit = new_fits[candidate_idx]
+                    best_glob_tree = deepcopy(new_pop[candidate_idx])
+                break
+            pop, fits = new_pop, new_fits
             
             if g % 5 == 0: iterator.set_description(f"Best MAE: {best_glob_fit:.4f}")
 

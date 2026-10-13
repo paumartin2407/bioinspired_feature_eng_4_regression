@@ -36,6 +36,10 @@ class EvaluationCounter:
         self.best = float("inf")
         self.history = []
 
+    @property
+    def remaining(self):
+        return self.limit - self.count
+
     def evaluate(self, fn, candidate):
         if self.count >= self.limit:
             raise RuntimeError("Fitness evaluation budget exhausted")
