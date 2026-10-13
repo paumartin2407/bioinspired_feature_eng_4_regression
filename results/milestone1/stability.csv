@@ -1,0 +1,1301 @@
+dataset,split,method,seed_a,seed_b,selection_jaccard,constructed_similarity
+California Housing,0,GA selection,101,211,1.0,
+California Housing,0,GA selection,101,307,1.0,
+California Housing,0,GA selection,101,401,1.0,
+California Housing,0,GA selection,101,503,1.0,
+California Housing,0,GA selection,211,307,1.0,
+California Housing,0,GA selection,211,401,1.0,
+California Housing,0,GA selection,211,503,1.0,
+California Housing,0,GA selection,307,401,1.0,
+California Housing,0,GA selection,307,503,1.0,
+California Housing,0,GA selection,401,503,1.0,
+California Housing,0,GA construction,101,211,0.16666666666666666,0.9789382787134564
+California Housing,0,GA construction,101,307,0.2,0.9754992210089337
+California Housing,0,GA construction,101,401,0.4,0.9880735545724142
+California Housing,0,GA construction,101,503,0.25,0.9494267283025534
+California Housing,0,GA construction,211,307,0.4,0.993566694111201
+California Housing,0,GA construction,211,401,0.14285714285714285,0.9926862273926444
+California Housing,0,GA construction,211,503,0.0,0.8196749974679118
+California Housing,0,GA construction,307,401,0.0,0.9839003158042201
+California Housing,0,GA construction,307,503,0.25,0.7895346025625348
+California Housing,0,GA construction,401,503,0.2,0.8561653168529355
+California Housing,0,GA combined,101,211,1.0,0.9784964178768842
+California Housing,0,GA combined,101,307,0.5,0.5318451116605576
+California Housing,0,GA combined,101,401,0.875,0.9584684369247686
+California Housing,0,GA combined,101,503,0.875,0.9821533977339971
+California Housing,0,GA combined,211,307,0.5,0.6991330115892903
+California Housing,0,GA combined,211,401,0.875,0.6958609303021975
+California Housing,0,GA combined,211,503,0.875,0.7707469582867483
+California Housing,0,GA combined,307,401,0.5714285714285714,0.5218741242953564
+California Housing,0,GA combined,307,503,0.5714285714285714,0.2414539263805046
+California Housing,0,GA combined,401,503,1.0,0.9623900595097685
+California Housing,0,PSO selection,101,211,1.0,
+California Housing,0,PSO selection,101,307,1.0,
+California Housing,0,PSO selection,101,401,1.0,
+California Housing,0,PSO selection,101,503,1.0,
+California Housing,0,PSO selection,211,307,1.0,
+California Housing,0,PSO selection,211,401,1.0,
+California Housing,0,PSO selection,211,503,1.0,
+California Housing,0,PSO selection,307,401,1.0,
+California Housing,0,PSO selection,307,503,1.0,
+California Housing,0,PSO selection,401,503,1.0,
+California Housing,0,PSO construction,101,211,0.2,0.8559707218274406
+California Housing,0,PSO construction,101,307,0.42857142857142855,0.8783649871555017
+California Housing,0,PSO construction,101,401,0.75,0.8647926328041138
+California Housing,0,PSO construction,101,503,0.3333333333333333,0.8059521518459409
+California Housing,0,PSO construction,211,307,0.3333333333333333,0.9964664638977118
+California Housing,0,PSO construction,211,401,0.25,0.5474039109675112
+California Housing,0,PSO construction,211,503,0.0,0.8699074816262945
+California Housing,0,PSO construction,307,401,0.2857142857142857,0.5985662083535251
+California Housing,0,PSO construction,307,503,0.42857142857142855,0.8993859053020725
+California Housing,0,PSO construction,401,503,0.16666666666666666,0.8931496527924773
+California Housing,0,PSO combined,101,211,1.0,0.885817975466122
+California Housing,0,PSO combined,101,307,0.5,0.6822754490236173
+California Housing,0,PSO combined,101,401,0.75,0.7786797390222754
+California Housing,0,PSO combined,101,503,0.625,0.9496398524966146
+California Housing,0,PSO combined,211,307,0.5,0.5783114106769929
+California Housing,0,PSO combined,211,401,0.75,0.9457310128789569
+California Housing,0,PSO combined,211,503,0.625,0.9398773499559395
+California Housing,0,PSO combined,307,401,0.7142857142857143,0.9204845100362452
+California Housing,0,PSO combined,307,503,0.375,0.332534224208263
+California Housing,0,PSO combined,401,503,0.625,0.9022048470989276
+California Housing,0,ES selection,101,211,1.0,
+California Housing,0,ES selection,101,307,1.0,
+California Housing,0,ES selection,101,401,1.0,
+California Housing,0,ES selection,101,503,1.0,
+California Housing,0,ES selection,211,307,1.0,
+California Housing,0,ES selection,211,401,1.0,
+California Housing,0,ES selection,211,503,1.0,
+California Housing,0,ES selection,307,401,1.0,
+California Housing,0,ES selection,307,503,1.0,
+California Housing,0,ES selection,401,503,1.0,
+California Housing,0,ES construction,101,211,1.0,0.9995114738235246
+California Housing,0,ES construction,101,307,1.0,0.98692275073529
+California Housing,0,ES construction,101,401,0.875,0.9576139341386185
+California Housing,0,ES construction,101,503,1.0,0.9854399092549385
+California Housing,0,ES construction,211,307,1.0,0.9760398503046107
+California Housing,0,ES construction,211,401,0.875,0.9409653756768301
+California Housing,0,ES construction,211,503,1.0,0.9453569897596937
+California Housing,0,ES construction,307,401,0.875,0.9696262126304496
+California Housing,0,ES construction,307,503,1.0,0.9926442779455842
+California Housing,0,ES construction,401,503,0.875,0.9538569259697051
+California Housing,0,ES combined,101,211,0.875,0.919731079930607
+California Housing,0,ES combined,101,307,0.875,0.9800512778974794
+California Housing,0,ES combined,101,401,0.875,0.920406639789397
+California Housing,0,ES combined,101,503,0.875,0.9191013908940635
+California Housing,0,ES combined,211,307,1.0,0.9555927408151189
+California Housing,0,ES combined,211,401,1.0,0.9838383986935132
+California Housing,0,ES combined,211,503,1.0,0.9664759487381762
+California Housing,0,ES combined,307,401,1.0,0.9653289521826222
+California Housing,0,ES combined,307,503,1.0,0.9554189251250719
+California Housing,0,ES combined,401,503,1.0,0.9893503551441273
+California Housing,0,GP,101,211,1.0,0.07005716520797375
+California Housing,0,GP,101,307,1.0,0.9675291725622489
+California Housing,0,GP,101,401,1.0,0.9174577946011513
+California Housing,0,GP,101,503,1.0,0.8383996873856164
+California Housing,0,GP,211,307,1.0,0.0389794677242797
+California Housing,0,GP,211,401,1.0,0.05029757774118843
+California Housing,0,GP,211,503,1.0,0.05841167979349349
+California Housing,0,GP,307,401,1.0,0.952209317420282
+California Housing,0,GP,307,503,1.0,0.8625349664442059
+California Housing,0,GP,401,503,1.0,0.8956127714092547
+California Housing,0,GP + GA,101,211,0.5555555555555556,0.838894662573282
+California Housing,0,GP + GA,101,307,0.5555555555555556,0.8960624812708347
+California Housing,0,GP + GA,101,401,0.6666666666666666,0.8990225563075446
+California Housing,0,GP + GA,101,503,0.6666666666666666,0.5857813098798185
+California Housing,0,GP + GA,211,307,0.5555555555555556,0.9720012688253933
+California Housing,0,GP + GA,211,401,0.6666666666666666,0.7944685960348433
+California Housing,0,GP + GA,211,503,0.6666666666666666,0.6803746132368217
+California Housing,0,GP + GA,307,401,0.6666666666666666,0.7925317606278283
+California Housing,0,GP + GA,307,503,0.875,0.7581908418928922
+California Housing,0,GP + GA,401,503,0.7777777777777778,0.999081459429325
+California Housing,0,GP + PSO,101,211,0.7777777777777778,0.7154232170193039
+California Housing,0,GP + PSO,101,307,0.8888888888888888,0.6368653406252043
+California Housing,0,GP + PSO,101,401,1.0,0.999081459429325
+California Housing,0,GP + PSO,101,503,0.6666666666666666,0.9999999999999999
+California Housing,0,GP + PSO,211,307,0.8888888888888888,0.9404133287275948
+California Housing,0,GP + PSO,211,401,0.7777777777777778,0.9693059338196016
+California Housing,0,GP + PSO,211,503,0.6666666666666666,0.8662466336688922
+California Housing,0,GP + PSO,307,401,0.8888888888888888,0.9785835759557687
+California Housing,0,GP + PSO,307,503,0.7777777777777778,0.8192570153211832
+California Housing,0,GP + PSO,401,503,0.6666666666666666,0.999081459429325
+California Housing,0,GP + ES,101,211,1.0,0.8643023068458555
+California Housing,0,GP + ES,101,307,1.0,0.979958041391626
+California Housing,0,GP + ES,101,401,1.0,0.999081459429325
+California Housing,0,GP + ES,101,503,1.0,0.9999999999999999
+California Housing,0,GP + ES,211,307,1.0,0.9900574147711555
+California Housing,0,GP + ES,211,401,1.0,0.5991561340091905
+California Housing,0,GP + ES,211,503,1.0,0.9130753980562842
+California Housing,0,GP + ES,307,401,1.0,0.6678671246457657
+California Housing,0,GP + ES,307,503,1.0,0.9819010410087656
+California Housing,0,GP + ES,401,503,1.0,0.999081459429325
+California Housing,1,GA selection,101,211,1.0,
+California Housing,1,GA selection,101,307,1.0,
+California Housing,1,GA selection,101,401,1.0,
+California Housing,1,GA selection,101,503,1.0,
+California Housing,1,GA selection,211,307,1.0,
+California Housing,1,GA selection,211,401,1.0,
+California Housing,1,GA selection,211,503,1.0,
+California Housing,1,GA selection,307,401,1.0,
+California Housing,1,GA selection,307,503,1.0,
+California Housing,1,GA selection,401,503,1.0,
+California Housing,1,GA construction,101,211,0.0,0.9973017256522835
+California Housing,1,GA construction,101,307,0.25,0.9909011774812937
+California Housing,1,GA construction,101,401,0.25,0.9954661383916994
+California Housing,1,GA construction,101,503,0.25,0.9970029253627655
+California Housing,1,GA construction,211,307,0.0,0.9936470883176498
+California Housing,1,GA construction,211,401,0.25,0.9977588738537675
+California Housing,1,GA construction,211,503,0.6666666666666666,0.9998274843382526
+California Housing,1,GA construction,307,401,0.0,0.9957390962700247
+California Housing,1,GA construction,307,503,0.0,0.9962800173084034
+California Housing,1,GA construction,401,503,0.5,0.9978291986033335
+California Housing,1,GA combined,101,211,0.625,0.9978976731406958
+California Housing,1,GA combined,101,307,0.75,0.9820997211815043
+California Housing,1,GA combined,101,401,0.8333333333333334,0.9864307285739187
+California Housing,1,GA combined,101,503,0.7142857142857143,0.9980836245918674
+California Housing,1,GA combined,211,307,0.875,0.9838072911408928
+California Housing,1,GA combined,211,401,0.5,0.9897750710587856
+California Housing,1,GA combined,211,503,0.625,0.9997730535826058
+California Housing,1,GA combined,307,401,0.625,0.971424440741827
+California Housing,1,GA combined,307,503,0.75,0.9840035415293917
+California Housing,1,GA combined,401,503,0.8333333333333334,0.9874963203371421
+California Housing,1,PSO selection,101,211,1.0,
+California Housing,1,PSO selection,101,307,1.0,
+California Housing,1,PSO selection,101,401,1.0,
+California Housing,1,PSO selection,101,503,0.875,
+California Housing,1,PSO selection,211,307,1.0,
+California Housing,1,PSO selection,211,401,1.0,
+California Housing,1,PSO selection,211,503,0.875,
+California Housing,1,PSO selection,307,401,1.0,
+California Housing,1,PSO selection,307,503,0.875,
+California Housing,1,PSO selection,401,503,0.875,
+California Housing,1,PSO construction,101,211,0.42857142857142855,0.9922500926262102
+California Housing,1,PSO construction,101,307,0.6,0.9899182454989136
+California Housing,1,PSO construction,101,401,0.5,0.9998855354080759
+California Housing,1,PSO construction,101,503,0.5,0.9966912470526642
+California Housing,1,PSO construction,211,307,0.42857142857142855,0.9928311552751443
+California Housing,1,PSO construction,211,401,0.5714285714285714,0.9928625786769982
+California Housing,1,PSO construction,211,503,0.5714285714285714,0.9929867711569004
+California Housing,1,PSO construction,307,401,0.5,0.9895894642182209
+California Housing,1,PSO construction,307,503,0.2857142857142857,0.9915268939834765
+California Housing,1,PSO construction,401,503,0.42857142857142855,0.9968520420388133
+California Housing,1,PSO combined,101,211,0.75,0.9863840688669911
+California Housing,1,PSO combined,101,307,0.8571428571428571,0.982667643766069
+California Housing,1,PSO combined,101,401,0.7142857142857143,0.9940505429627408
+California Housing,1,PSO combined,101,503,0.375,0.999716170635863
+California Housing,1,PSO combined,211,307,0.875,0.9888115946307713
+California Housing,1,PSO combined,211,401,0.75,0.9938723432680238
+California Housing,1,PSO combined,211,503,0.625,0.9881136692301821
+California Housing,1,PSO combined,307,401,0.625,0.9889928752016562
+California Housing,1,PSO combined,307,503,0.5,0.9842418428823124
+California Housing,1,PSO combined,401,503,0.375,0.9957717900397648
+California Housing,1,ES selection,101,211,1.0,
+California Housing,1,ES selection,101,307,1.0,
+California Housing,1,ES selection,101,401,1.0,
+California Housing,1,ES selection,101,503,1.0,
+California Housing,1,ES selection,211,307,1.0,
+California Housing,1,ES selection,211,401,1.0,
+California Housing,1,ES selection,211,503,1.0,
+California Housing,1,ES selection,307,401,1.0,
+California Housing,1,ES selection,307,503,1.0,
+California Housing,1,ES selection,401,503,1.0,
+California Housing,1,ES construction,101,211,1.0,0.998566595974603
+California Housing,1,ES construction,101,307,0.875,0.9999774707043014
+California Housing,1,ES construction,101,401,1.0,0.9970215766337539
+California Housing,1,ES construction,101,503,0.875,0.999988715351685
+California Housing,1,ES construction,211,307,0.875,0.9986128250827798
+California Housing,1,ES construction,211,401,1.0,0.998465608843062
+California Housing,1,ES construction,211,503,0.875,0.9984571440931607
+California Housing,1,ES construction,307,401,0.875,0.9971833775121988
+California Housing,1,ES construction,307,503,0.75,0.9999720343043392
+California Housing,1,ES construction,401,503,0.875,0.9970922404419761
+California Housing,1,ES combined,101,211,0.875,0.9949814290728666
+California Housing,1,ES combined,101,307,1.0,0.9909217518451318
+California Housing,1,ES combined,101,401,1.0,0.9951545421365232
+California Housing,1,ES combined,101,503,1.0,0.9911514482264939
+California Housing,1,ES combined,211,307,0.875,0.9965937527484059
+California Housing,1,ES combined,211,401,0.875,0.9942256529591922
+California Housing,1,ES combined,211,503,0.875,0.9974363156096735
+California Housing,1,ES combined,307,401,1.0,0.9904557835387684
+California Housing,1,ES combined,307,503,1.0,0.9984000036632823
+California Housing,1,ES combined,401,503,1.0,0.990161736136664
+California Housing,1,GP,101,211,1.0,0.9239659095705205
+California Housing,1,GP,101,307,1.0,0.9512221888618171
+California Housing,1,GP,101,401,1.0,0.7947664674661672
+California Housing,1,GP,101,503,1.0,0.6190461672004594
+California Housing,1,GP,211,307,1.0,0.9284066609798178
+California Housing,1,GP,211,401,1.0,0.7653076692637294
+California Housing,1,GP,211,503,1.0,0.5663490525599577
+California Housing,1,GP,307,401,1.0,0.7453088140506887
+California Housing,1,GP,307,503,1.0,0.5823275189973557
+California Housing,1,GP,401,503,1.0,0.7320145326715816
+California Housing,1,GP + GA,101,211,0.4444444444444444,0.8827465979880602
+California Housing,1,GP + GA,101,307,0.6666666666666666,0.6853384995304161
+California Housing,1,GP + GA,101,401,0.7777777777777778,0.9915896337976566
+California Housing,1,GP + GA,101,503,0.4444444444444444,0.7156725100808145
+California Housing,1,GP + GA,211,307,0.5555555555555556,0.5652488406851855
+California Housing,1,GP + GA,211,401,0.6666666666666666,0.9281607542566453
+California Housing,1,GP + GA,211,503,0.3333333333333333,0.6332392878760708
+California Housing,1,GP + GA,307,401,0.8888888888888888,0.31357619069381143
+California Housing,1,GP + GA,307,503,0.75,0.3431981208886779
+California Housing,1,GP + GA,401,503,0.6666666666666666,0.7541967821134856
+California Housing,1,GP + PSO,101,211,0.5555555555555556,0.6806866250233116
+California Housing,1,GP + PSO,101,307,0.4444444444444444,0.36006845958725453
+California Housing,1,GP + PSO,101,401,0.75,0.8027898231915949
+California Housing,1,GP + PSO,101,503,0.75,0.9380781564125013
+California Housing,1,GP + PSO,211,307,0.625,0.9012365465648193
+California Housing,1,GP + PSO,211,401,0.5555555555555556,0.9986973424770955
+California Housing,1,GP + PSO,211,503,0.5555555555555556,0.6332392878760708
+California Housing,1,GP + PSO,307,401,0.625,0.9032172820229121
+California Housing,1,GP + PSO,307,503,0.4444444444444444,0.6501190110540263
+California Housing,1,GP + PSO,401,503,0.75,0.7541967821134856
+California Housing,1,GP + ES,101,211,0.8888888888888888,0.9207223146059617
+California Housing,1,GP + ES,101,307,0.6666666666666666,0.559304383102998
+California Housing,1,GP + ES,101,401,0.8888888888888888,0.9070291392019372
+California Housing,1,GP + ES,101,503,0.8888888888888888,0.9380781564125013
+California Housing,1,GP + ES,211,307,0.7777777777777778,0.43654048508111015
+California Housing,1,GP + ES,211,401,1.0,0.9868252483475876
+California Housing,1,GP + ES,211,503,1.0,0.6332392878760708
+California Housing,1,GP + ES,307,401,0.7777777777777778,0.7939267908466733
+California Housing,1,GP + ES,307,503,0.7777777777777778,0.8423268468625834
+California Housing,1,GP + ES,401,503,1.0,0.7541967821134856
+California Housing,2,GA selection,101,211,1.0,
+California Housing,2,GA selection,101,307,1.0,
+California Housing,2,GA selection,101,401,1.0,
+California Housing,2,GA selection,101,503,1.0,
+California Housing,2,GA selection,211,307,1.0,
+California Housing,2,GA selection,211,401,1.0,
+California Housing,2,GA selection,211,503,1.0,
+California Housing,2,GA selection,307,401,1.0,
+California Housing,2,GA selection,307,503,1.0,
+California Housing,2,GA selection,401,503,1.0,
+California Housing,2,GA construction,101,211,0.2,0.8133721651567147
+California Housing,2,GA construction,101,307,0.5,0.8417390225006669
+California Housing,2,GA construction,101,401,0.2857142857142857,0.948018660840627
+California Housing,2,GA construction,101,503,0.16666666666666666,0.7418933981039612
+California Housing,2,GA construction,211,307,0.0,0.3367982115928132
+California Housing,2,GA construction,211,401,0.16666666666666666,0.5509512563643725
+California Housing,2,GA construction,211,503,0.0,0.7680814202137249
+California Housing,2,GA construction,307,401,0.4,0.9843852297601267
+California Housing,2,GA construction,307,503,0.25,0.5055447293635336
+California Housing,2,GA construction,401,503,0.3333333333333333,0.6579670392208165
+California Housing,2,GA combined,101,211,0.7142857142857143,0.8781634573204915
+California Housing,2,GA combined,101,307,0.8571428571428571,0.8742707440084084
+California Housing,2,GA combined,101,401,0.7142857142857143,0.8181853938332426
+California Housing,2,GA combined,101,503,0.8571428571428571,0.8139914445612729
+California Housing,2,GA combined,211,307,0.5714285714285714,0.756513396385483
+California Housing,2,GA combined,211,401,1.0,0.7996760827481155
+California Housing,2,GA combined,211,503,0.8333333333333334,0.6195045675597433
+California Housing,2,GA combined,307,401,0.5714285714285714,0.7085906605850595
+California Housing,2,GA combined,307,503,0.7142857142857143,0.6186106388257814
+California Housing,2,GA combined,401,503,0.8333333333333334,0.6392097547569776
+California Housing,2,PSO selection,101,211,1.0,
+California Housing,2,PSO selection,101,307,1.0,
+California Housing,2,PSO selection,101,401,1.0,
+California Housing,2,PSO selection,101,503,1.0,
+California Housing,2,PSO selection,211,307,1.0,
+California Housing,2,PSO selection,211,401,1.0,
+California Housing,2,PSO selection,211,503,1.0,
+California Housing,2,PSO selection,307,401,1.0,
+California Housing,2,PSO selection,307,503,1.0,
+California Housing,2,PSO selection,401,503,1.0,
+California Housing,2,PSO construction,101,211,0.8571428571428571,0.9953305441441634
+California Housing,2,PSO construction,101,307,0.8333333333333334,0.9851448661333002
+California Housing,2,PSO construction,101,401,0.42857142857142855,0.7023212826826125
+California Housing,2,PSO construction,101,503,0.8333333333333334,0.6566511233420675
+California Housing,2,PSO construction,211,307,0.7142857142857143,0.9950540947687707
+California Housing,2,PSO construction,211,401,0.375,0.654699073471489
+California Housing,2,PSO construction,211,503,0.7142857142857143,0.7707330274202209
+California Housing,2,PSO construction,307,401,0.2857142857142857,0.5879516513819205
+California Housing,2,PSO construction,307,503,0.6666666666666666,0.7536556361901271
+California Housing,2,PSO construction,401,503,0.5,0.961180546710778
+California Housing,2,PSO combined,101,211,0.875,0.2965031627359719
+California Housing,2,PSO combined,101,307,0.625,0.7680291862437587
+California Housing,2,PSO combined,101,401,0.625,0.3150268710978412
+California Housing,2,PSO combined,101,503,0.875,0.7930230867769206
+California Housing,2,PSO combined,211,307,0.7142857142857143,0.613398340044696
+California Housing,2,PSO combined,211,401,0.7142857142857143,0.687560366046411
+California Housing,2,PSO combined,211,503,0.75,0.42246913902783734
+California Housing,2,PSO combined,307,401,0.42857142857142855,0.7666528698279795
+California Housing,2,PSO combined,307,503,0.7142857142857143,0.7029806350749152
+California Housing,2,PSO combined,401,503,0.5,0.8198836290202589
+California Housing,2,ES selection,101,211,1.0,
+California Housing,2,ES selection,101,307,1.0,
+California Housing,2,ES selection,101,401,1.0,
+California Housing,2,ES selection,101,503,1.0,
+California Housing,2,ES selection,211,307,1.0,
+California Housing,2,ES selection,211,401,1.0,
+California Housing,2,ES selection,211,503,1.0,
+California Housing,2,ES selection,307,401,1.0,
+California Housing,2,ES selection,307,503,1.0,
+California Housing,2,ES selection,401,503,1.0,
+California Housing,2,ES construction,101,211,1.0,0.6998146916536424
+California Housing,2,ES construction,101,307,1.0,0.5337288460093231
+California Housing,2,ES construction,101,401,0.875,0.765622532905327
+California Housing,2,ES construction,101,503,1.0,0.7603306929739249
+California Housing,2,ES construction,211,307,1.0,0.7565629187841968
+California Housing,2,ES construction,211,401,0.875,0.973388003590637
+California Housing,2,ES construction,211,503,1.0,0.9624254892228347
+California Housing,2,ES construction,307,401,0.875,0.6877572954284559
+California Housing,2,ES construction,307,503,1.0,0.7303579801570499
+California Housing,2,ES construction,401,503,0.875,0.9553263280598162
+California Housing,2,ES combined,101,211,0.625,0.7776894049857742
+California Housing,2,ES combined,101,307,0.625,0.86010392734368
+California Housing,2,ES combined,101,401,0.625,0.5169503859587711
+California Housing,2,ES combined,101,503,0.625,0.7892798677534825
+California Housing,2,ES combined,211,307,1.0,0.8123647773869874
+California Housing,2,ES combined,211,401,1.0,0.7274150444211994
+California Housing,2,ES combined,211,503,1.0,0.6348887496901596
+California Housing,2,ES combined,307,401,1.0,0.8872074753250164
+California Housing,2,ES combined,307,503,1.0,0.7977404464874825
+California Housing,2,ES combined,401,503,1.0,0.7823281904899937
+California Housing,2,GP,101,211,1.0,0.0494544651965889
+California Housing,2,GP,101,307,1.0,0.9698387053737227
+California Housing,2,GP,101,401,1.0,0.8445311462688355
+California Housing,2,GP,101,503,1.0,0.4989016094520147
+California Housing,2,GP,211,307,1.0,0.06488987987245927
+California Housing,2,GP,211,401,1.0,0.09747335998593193
+California Housing,2,GP,211,503,1.0,0.027010539533978233
+California Housing,2,GP,307,401,1.0,0.8754410210367899
+California Housing,2,GP,307,503,1.0,0.51369340287577
+California Housing,2,GP,401,503,1.0,0.46600231093758115
+California Housing,2,GP + GA,101,211,0.42857142857142855,0.5420728755982261
+California Housing,2,GP + GA,101,307,0.3333333333333333,0.43913045902632725
+California Housing,2,GP + GA,101,401,0.375,0.5397568467904996
+California Housing,2,GP + GA,101,503,0.25,0.3931001516755297
+California Housing,2,GP + GA,211,307,0.5555555555555556,0.44685717048798346
+California Housing,2,GP + GA,211,401,0.8571428571428571,0.5651358754440708
+California Housing,2,GP + GA,211,503,0.3333333333333333,0.5421094336432378
+California Housing,2,GP + GA,307,401,0.6666666666666666,0.8754410210367899
+California Housing,2,GP + GA,307,503,0.75,0.9443198030362693
+California Housing,2,GP + GA,401,503,0.4444444444444444,0.8759228338570058
+California Housing,2,GP + PSO,101,211,0.75,0.46096588008533457
+California Housing,2,GP + PSO,101,307,0.5555555555555556,0.3914220044029576
+California Housing,2,GP + PSO,101,401,0.75,0.8445311462688355
+California Housing,2,GP + PSO,101,503,0.5,0.8446914696905043
+California Housing,2,GP + PSO,211,307,0.7777777777777778,0.9241372730683807
+California Housing,2,GP + PSO,211,401,0.7777777777777778,0.9390222362009893
+California Housing,2,GP + PSO,211,503,0.75,0.6265680983647314
+California Housing,2,GP + PSO,307,401,0.7777777777777778,0.9183289749893738
+California Housing,2,GP + PSO,307,503,0.5555555555555556,0.8078816467962056
+California Housing,2,GP + PSO,401,503,0.5555555555555556,0.8759228338570058
+California Housing,2,GP + ES,101,211,1.0,0.9973177957013198
+California Housing,2,GP + ES,101,307,1.0,0.9698387053737227
+California Housing,2,GP + ES,101,401,0.8888888888888888,0.9485044870959151
+California Housing,2,GP + ES,101,503,1.0,0.9209260962672267
+California Housing,2,GP + ES,211,307,1.0,0.6422461065484977
+California Housing,2,GP + ES,211,401,0.8888888888888888,0.9445557314683539
+California Housing,2,GP + ES,211,503,1.0,0.9247824703191109
+California Housing,2,GP + ES,307,401,0.8888888888888888,0.8754410210367899
+California Housing,2,GP + ES,307,503,1.0,0.9443198030362693
+California Housing,2,GP + ES,401,503,0.8888888888888888,0.8833484841608373
+California Housing,3,GA selection,101,211,1.0,
+California Housing,3,GA selection,101,307,1.0,
+California Housing,3,GA selection,101,401,1.0,
+California Housing,3,GA selection,101,503,1.0,
+California Housing,3,GA selection,211,307,1.0,
+California Housing,3,GA selection,211,401,1.0,
+California Housing,3,GA selection,211,503,1.0,
+California Housing,3,GA selection,307,401,1.0,
+California Housing,3,GA selection,307,503,1.0,
+California Housing,3,GA selection,401,503,1.0,
+California Housing,3,GA construction,101,211,0.6666666666666666,0.9991761495096197
+California Housing,3,GA construction,101,307,0.3333333333333333,0.9322008196390545
+California Housing,3,GA construction,101,401,0.0,0.9780637836098982
+California Housing,3,GA construction,101,503,0.16666666666666666,0.977789653801537
+California Housing,3,GA construction,211,307,0.5,0.9210573827784736
+California Housing,3,GA construction,211,401,0.0,0.9741394196177534
+California Housing,3,GA construction,211,503,0.2,0.9762182395078101
+California Housing,3,GA construction,307,401,0.0,0.9757477532979991
+California Housing,3,GA construction,307,503,0.0,0.9283220648593452
+California Housing,3,GA construction,401,503,0.25,0.9695980222567046
+California Housing,3,GA combined,101,211,0.75,0.5963109413433679
+California Housing,3,GA combined,101,307,0.875,0.9740115628454484
+California Housing,3,GA combined,101,401,0.875,0.9664097080598636
+California Housing,3,GA combined,101,503,0.875,0.9908816934903759
+California Housing,3,GA combined,211,307,0.625,0.25600287443336855
+California Housing,3,GA combined,211,401,0.8571428571428571,0.6594642427732781
+California Housing,3,GA combined,211,503,0.8571428571428571,0.8588286597799837
+California Housing,3,GA combined,307,401,0.75,0.9812267170894177
+California Housing,3,GA combined,307,503,0.75,0.976350279635744
+California Housing,3,GA combined,401,503,1.0,0.9806319192639623
+California Housing,3,PSO selection,101,211,1.0,
+California Housing,3,PSO selection,101,307,1.0,
+California Housing,3,PSO selection,101,401,1.0,
+California Housing,3,PSO selection,101,503,1.0,
+California Housing,3,PSO selection,211,307,1.0,
+California Housing,3,PSO selection,211,401,1.0,
+California Housing,3,PSO selection,211,503,1.0,
+California Housing,3,PSO selection,307,401,1.0,
+California Housing,3,PSO selection,307,503,1.0,
+California Housing,3,PSO selection,401,503,1.0,
+California Housing,3,PSO construction,101,211,0.16666666666666666,0.7355837008446182
+California Housing,3,PSO construction,101,307,0.4,0.7560541752378035
+California Housing,3,PSO construction,101,401,0.3333333333333333,0.7167771622452586
+California Housing,3,PSO construction,101,503,0.0,0.9044790710404544
+California Housing,3,PSO construction,211,307,0.3333333333333333,0.8387003161990999
+California Housing,3,PSO construction,211,401,0.5,0.9769784043346706
+California Housing,3,PSO construction,211,503,0.4,0.7762771093611823
+California Housing,3,PSO construction,307,401,0.125,0.8419305344581577
+California Housing,3,PSO construction,307,503,0.4,0.9670445411929965
+California Housing,3,PSO construction,401,503,0.14285714285714285,0.7995801069292084
+California Housing,3,PSO combined,101,211,0.625,0.6994872020845119
+California Housing,3,PSO combined,101,307,0.75,0.7930616629924023
+California Housing,3,PSO combined,101,401,0.625,0.4403684188813251
+California Housing,3,PSO combined,101,503,0.625,0.23239351354218982
+California Housing,3,PSO combined,211,307,0.875,0.9841417629331353
+California Housing,3,PSO combined,211,401,0.75,0.9219717410163045
+California Housing,3,PSO combined,211,503,1.0,0.7324907094185508
+California Housing,3,PSO combined,307,401,0.875,0.4281120717816612
+California Housing,3,PSO combined,307,503,0.875,0.7869740530661935
+California Housing,3,PSO combined,401,503,0.75,0.16781529502514186
+California Housing,3,ES selection,101,211,1.0,
+California Housing,3,ES selection,101,307,1.0,
+California Housing,3,ES selection,101,401,1.0,
+California Housing,3,ES selection,101,503,1.0,
+California Housing,3,ES selection,211,307,1.0,
+California Housing,3,ES selection,211,401,1.0,
+California Housing,3,ES selection,211,503,1.0,
+California Housing,3,ES selection,307,401,1.0,
+California Housing,3,ES selection,307,503,1.0,
+California Housing,3,ES selection,401,503,1.0,
+California Housing,3,ES construction,101,211,1.0,0.6878703485427852
+California Housing,3,ES construction,101,307,1.0,0.7269556497322374
+California Housing,3,ES construction,101,401,0.875,0.9238797508691645
+California Housing,3,ES construction,101,503,1.0,0.8732240406092885
+California Housing,3,ES construction,211,307,1.0,0.9964610186036684
+California Housing,3,ES construction,211,401,0.875,0.5992442231356983
+California Housing,3,ES construction,211,503,1.0,0.9516342155347876
+California Housing,3,ES construction,307,401,0.875,0.6285259386170126
+California Housing,3,ES construction,307,503,1.0,0.9658445437058951
+California Housing,3,ES construction,401,503,0.875,0.7936517031358172
+California Housing,3,ES combined,101,211,1.0,0.9288721915962982
+California Housing,3,ES combined,101,307,1.0,0.9934707434663765
+California Housing,3,ES combined,101,401,1.0,0.9964925493162019
+California Housing,3,ES combined,101,503,1.0,0.9969989552330285
+California Housing,3,ES combined,211,307,1.0,0.942934786516942
+California Housing,3,ES combined,211,401,1.0,0.9237765540393014
+California Housing,3,ES combined,211,503,1.0,0.9498021518344557
+California Housing,3,ES combined,307,401,1.0,0.9909506224775564
+California Housing,3,ES combined,307,503,1.0,0.9964185273763173
+California Housing,3,ES combined,401,503,1.0,0.9938280798276982
+California Housing,3,GP,101,211,1.0,0.20015481244671118
+California Housing,3,GP,101,307,1.0,0.18358531976611436
+California Housing,3,GP,101,401,1.0,1.0
+California Housing,3,GP,101,503,1.0,0.9151856909745111
+California Housing,3,GP,211,307,1.0,0.8949549275308597
+California Housing,3,GP,211,401,1.0,0.20015481244671118
+California Housing,3,GP,211,503,1.0,0.0653224548532829
+California Housing,3,GP,307,401,1.0,0.18358531976611434
+California Housing,3,GP,307,503,1.0,0.05356781651578796
+California Housing,3,GP,401,503,1.0,0.9151856909745111
+California Housing,3,GP + GA,101,211,0.7777777777777778,0.42328143964392173
+California Housing,3,GP + GA,101,307,0.7777777777777778,0.3891496963505134
+California Housing,3,GP + GA,101,401,0.6666666666666666,0.772019019779551
+California Housing,3,GP + GA,101,503,0.5555555555555556,0.43945493446912964
+California Housing,3,GP + GA,211,307,0.7777777777777778,0.8664859668262999
+California Housing,3,GP + GA,211,401,0.875,0.5703175298657358
+California Housing,3,GP + GA,211,503,0.75,0.4872083949020831
+California Housing,3,GP + GA,307,401,0.6666666666666666,0.7929099281457843
+California Housing,3,GP + GA,307,503,0.75,0.1952893444250092
+California Housing,3,GP + GA,401,503,0.625,0.9094160542504246
+California Housing,3,GP + PSO,101,211,0.6666666666666666,0.6876016851124737
+California Housing,3,GP + PSO,101,307,0.625,0.7586699486406671
+California Housing,3,GP + PSO,101,401,0.5555555555555556,0.9996208883896655
+California Housing,3,GP + PSO,101,503,0.625,0.9169404055500366
+California Housing,3,GP + PSO,211,307,0.7777777777777778,0.2929533645705721
+California Housing,3,GP + PSO,211,401,0.8888888888888888,0.12160023442682846
+California Housing,3,GP + PSO,211,503,0.7777777777777778,0.6746416873156543
+California Housing,3,GP + PSO,307,401,0.6666666666666666,0.4851610100044289
+California Housing,3,GP + PSO,307,503,0.5555555555555556,0.6763358457836077
+California Housing,3,GP + PSO,401,503,0.6666666666666666,0.9094160542504246
+California Housing,3,GP + ES,101,211,1.0,0.9328792549239484
+California Housing,3,GP + ES,101,307,1.0,0.48008403152299334
+California Housing,3,GP + ES,101,401,1.0,0.9996208883896655
+California Housing,3,GP + ES,101,503,1.0,0.9169404055500366
+California Housing,3,GP + ES,211,307,1.0,0.5764495500964276
+California Housing,3,GP + ES,211,401,1.0,0.812621439108095
+California Housing,3,GP + ES,211,503,1.0,0.44974411102420336
+California Housing,3,GP + ES,307,401,1.0,0.3998734788837665
+California Housing,3,GP + ES,307,503,1.0,0.7601885489404618
+California Housing,3,GP + ES,401,503,1.0,0.9094160542504246
+California Housing,4,GA selection,101,211,1.0,
+California Housing,4,GA selection,101,307,1.0,
+California Housing,4,GA selection,101,401,1.0,
+California Housing,4,GA selection,101,503,1.0,
+California Housing,4,GA selection,211,307,1.0,
+California Housing,4,GA selection,211,401,1.0,
+California Housing,4,GA selection,211,503,1.0,
+California Housing,4,GA selection,307,401,1.0,
+California Housing,4,GA selection,307,503,1.0,
+California Housing,4,GA selection,401,503,1.0,
+California Housing,4,GA construction,101,211,0.25,0.999980979491314
+California Housing,4,GA construction,101,307,0.5,0.9998662750085592
+California Housing,4,GA construction,101,401,0.2,0.99994165191815
+California Housing,4,GA construction,101,503,0.0,0.9999853442290076
+California Housing,4,GA construction,211,307,0.3333333333333333,0.9998758614385496
+California Housing,4,GA construction,211,401,0.4,0.9999574473668867
+California Housing,4,GA construction,211,503,0.2,0.9999915071803942
+California Housing,4,GA construction,307,401,0.25,0.9998601462042683
+California Housing,4,GA construction,307,503,0.0,0.9999128621003315
+California Housing,4,GA construction,401,503,0.16666666666666666,0.9999322950819332
+California Housing,4,GA combined,101,211,0.8,0.9797784434827255
+California Housing,4,GA combined,101,307,1.0,0.9738799276390974
+California Housing,4,GA combined,101,401,0.6,0.3089957355461889
+California Housing,4,GA combined,101,503,0.7142857142857143,0.9104597576545316
+California Housing,4,GA combined,211,307,0.8,0.9612588858931005
+California Housing,4,GA combined,211,401,0.75,0.372088950310545
+California Housing,4,GA combined,211,503,0.5714285714285714,0.9355791552528164
+California Housing,4,GA combined,307,401,0.6,0.31339742794963316
+California Housing,4,GA combined,307,503,0.7142857142857143,0.8785923199050062
+California Housing,4,GA combined,401,503,0.42857142857142855,0.4829738476980838
+California Housing,4,PSO selection,101,211,1.0,
+California Housing,4,PSO selection,101,307,1.0,
+California Housing,4,PSO selection,101,401,1.0,
+California Housing,4,PSO selection,101,503,1.0,
+California Housing,4,PSO selection,211,307,1.0,
+California Housing,4,PSO selection,211,401,1.0,
+California Housing,4,PSO selection,211,503,1.0,
+California Housing,4,PSO selection,307,401,1.0,
+California Housing,4,PSO selection,307,503,1.0,
+California Housing,4,PSO selection,401,503,1.0,
+California Housing,4,PSO construction,101,211,0.125,0.9999633261871275
+California Housing,4,PSO construction,101,307,0.42857142857142855,0.9999884283830285
+California Housing,4,PSO construction,101,401,0.42857142857142855,0.9999876262257155
+California Housing,4,PSO construction,101,503,0.2857142857142857,0.9998281669794227
+California Housing,4,PSO construction,211,307,0.4,0.9999731391226521
+California Housing,4,PSO construction,211,401,0.4,0.9999771694055024
+California Housing,4,PSO construction,211,503,0.2,0.9998398203567559
+California Housing,4,PSO construction,307,401,0.3333333333333333,0.9999773676361755
+California Housing,4,PSO construction,307,503,0.16666666666666666,0.9998532822914646
+California Housing,4,PSO construction,401,503,0.16666666666666666,0.9998448240706201
+California Housing,4,PSO combined,101,211,0.625,0.9999957292456224
+California Housing,4,PSO combined,101,307,0.5,0.9999793466764431
+California Housing,4,PSO combined,101,401,0.625,0.9999944074757056
+California Housing,4,PSO combined,101,503,0.5,0.15674919675848364
+California Housing,4,PSO combined,211,307,0.5714285714285714,0.9999845608096032
+California Housing,4,PSO combined,211,401,0.7142857142857143,0.999998376133166
+California Housing,4,PSO combined,211,503,0.8333333333333334,0.07480895531217734
+California Housing,4,PSO combined,307,401,0.5714285714285714,0.9999877077015319
+California Housing,4,PSO combined,307,503,0.6666666666666666,0.11138899538668535
+California Housing,4,PSO combined,401,503,0.5714285714285714,0.13426237634143962
+California Housing,4,ES selection,101,211,1.0,
+California Housing,4,ES selection,101,307,1.0,
+California Housing,4,ES selection,101,401,1.0,
+California Housing,4,ES selection,101,503,1.0,
+California Housing,4,ES selection,211,307,1.0,
+California Housing,4,ES selection,211,401,1.0,
+California Housing,4,ES selection,211,503,1.0,
+California Housing,4,ES selection,307,401,1.0,
+California Housing,4,ES selection,307,503,1.0,
+California Housing,4,ES selection,401,503,1.0,
+California Housing,4,ES construction,101,211,0.75,0.9999095490137606
+California Housing,4,ES construction,101,307,0.75,0.9999533725873365
+California Housing,4,ES construction,101,401,0.5714285714285714,0.999573933892547
+California Housing,4,ES construction,101,503,0.75,0.9999303468923623
+California Housing,4,ES construction,211,307,1.0,0.9999397161740401
+California Housing,4,ES construction,211,401,0.625,0.9995683617643555
+California Housing,4,ES construction,211,503,1.0,0.9999701722361727
+California Housing,4,ES construction,307,401,0.625,0.9997294733790529
+California Housing,4,ES construction,307,503,1.0,0.9999484567470974
+California Housing,4,ES construction,401,503,0.625,0.9996296238208896
+California Housing,4,ES combined,101,211,0.875,0.9999983245321096
+California Housing,4,ES combined,101,307,1.0,0.9999910576494861
+California Housing,4,ES combined,101,401,0.875,0.9999601469069426
+California Housing,4,ES combined,101,503,0.875,0.8983811230854314
+California Housing,4,ES combined,211,307,0.875,0.9999953977853744
+California Housing,4,ES combined,211,401,1.0,0.999971971503485
+California Housing,4,ES combined,211,503,1.0,0.8996144921692789
+California Housing,4,ES combined,307,401,0.875,0.9999851675964426
+California Housing,4,ES combined,307,503,0.875,0.8985126220900014
+California Housing,4,ES combined,401,503,1.0,0.8977744056488872
+California Housing,4,GP,101,211,1.0,0.9502561966157944
+California Housing,4,GP,101,307,1.0,1.0
+California Housing,4,GP,101,401,1.0,0.9686964017818458
+California Housing,4,GP,101,503,1.0,0.9999680590907647
+California Housing,4,GP,211,307,1.0,0.9502561966157944
+California Housing,4,GP,211,401,1.0,0.9849335848141435
+California Housing,4,GP,211,503,1.0,0.9497113193084946
+California Housing,4,GP,307,401,1.0,0.9686964017818458
+California Housing,4,GP,307,503,1.0,0.9999680590907647
+California Housing,4,GP,401,503,1.0,0.9685883598905464
+California Housing,4,GP + GA,101,211,0.5555555555555556,0.9591611354198374
+California Housing,4,GP + GA,101,307,0.5,0.9932785491173769
+California Housing,4,GP + GA,101,401,0.3333333333333333,1.0
+California Housing,4,GP + GA,101,503,0.4444444444444444,0.9999617710600704
+California Housing,4,GP + GA,211,307,0.5555555555555556,0.939888678966272
+California Housing,4,GP + GA,211,401,0.75,0.9591611354198374
+California Housing,4,GP + GA,211,503,0.875,0.9584741739655488
+California Housing,4,GP + GA,307,401,0.3333333333333333,0.8792868995177081
+California Housing,4,GP + GA,307,503,0.625,0.9814761037861586
+California Housing,4,GP + GA,401,503,0.625,0.9999617710600704
+California Housing,4,GP + PSO,101,211,0.75,0.9591611354198374
+California Housing,4,GP + PSO,101,307,0.75,0.9011848008484286
+California Housing,4,GP + PSO,101,401,0.5,1.0
+California Housing,4,GP + PSO,101,503,0.625,0.9999617710600704
+California Housing,4,GP + PSO,211,307,0.5555555555555556,0.9145715784176905
+California Housing,4,GP + PSO,211,401,0.7142857142857143,0.9591611354198374
+California Housing,4,GP + PSO,211,503,0.625,0.9584741739655488
+California Housing,4,GP + PSO,307,401,0.3333333333333333,0.9989820646225369
+California Housing,4,GP + PSO,307,503,0.4444444444444444,0.9971014907819913
+California Housing,4,GP + PSO,401,503,0.375,0.9999617710600704
+California Housing,4,GP + ES,101,211,0.8888888888888888,0.9765523459762907
+California Housing,4,GP + ES,101,307,0.7777777777777778,0.9859871546716064
+California Housing,4,GP + ES,101,401,0.875,1.0
+California Housing,4,GP + ES,101,503,0.6666666666666666,0.9999617710600704
+California Housing,4,GP + ES,211,307,0.8888888888888888,0.97520069029707
+California Housing,4,GP + ES,211,401,0.7777777777777778,0.9787871953284631
+California Housing,4,GP + ES,211,503,0.7777777777777778,0.9841444099519534
+California Housing,4,GP + ES,307,401,0.6666666666666666,0.9916586032941617
+California Housing,4,GP + ES,307,503,0.6666666666666666,0.9936293027929181
+California Housing,4,GP + ES,401,503,0.75,0.9999617710600704
+Diabetes Progression,0,GA selection,101,211,1.0,
+Diabetes Progression,0,GA selection,101,307,1.0,
+Diabetes Progression,0,GA selection,101,401,0.42857142857142855,
+Diabetes Progression,0,GA selection,101,503,1.0,
+Diabetes Progression,0,GA selection,211,307,1.0,
+Diabetes Progression,0,GA selection,211,401,0.42857142857142855,
+Diabetes Progression,0,GA selection,211,503,1.0,
+Diabetes Progression,0,GA selection,307,401,0.42857142857142855,
+Diabetes Progression,0,GA selection,307,503,1.0,
+Diabetes Progression,0,GA selection,401,503,0.42857142857142855,
+Diabetes Progression,0,GA construction,101,211,0.14285714285714285,0.572459438222168
+Diabetes Progression,0,GA construction,101,307,0.0,0.8991486499216416
+Diabetes Progression,0,GA construction,101,401,0.0,0.684412724229643
+Diabetes Progression,0,GA construction,101,503,0.2,0.7507938579571406
+Diabetes Progression,0,GA construction,211,307,0.2857142857142857,0.5903135887755087
+Diabetes Progression,0,GA construction,211,401,0.3333333333333333,0.844314331533759
+Diabetes Progression,0,GA construction,211,503,0.25,0.8319789688516732
+Diabetes Progression,0,GA construction,307,401,0.6666666666666666,0.7119156954342992
+Diabetes Progression,0,GA construction,307,503,0.16666666666666666,0.7225449832087619
+Diabetes Progression,0,GA construction,401,503,0.2,0.8619373966370956
+Diabetes Progression,0,GA combined,101,211,0.5,0.2926924976165604
+Diabetes Progression,0,GA combined,101,307,0.42857142857142855,0.2260135540115118
+Diabetes Progression,0,GA combined,101,401,0.8333333333333334,0.599385876596772
+Diabetes Progression,0,GA combined,101,503,0.25,0.4615089206695617
+Diabetes Progression,0,GA combined,211,307,0.5,0.7234939425311684
+Diabetes Progression,0,GA combined,211,401,0.42857142857142855,0.6004055892513592
+Diabetes Progression,0,GA combined,211,503,0.2857142857142857,0.45214549387919883
+Diabetes Progression,0,GA combined,307,401,0.375,0.800626938149614
+Diabetes Progression,0,GA combined,307,503,0.1111111111111111,0.631657170842297
+Diabetes Progression,0,GA combined,401,503,0.375,0.5127735392612709
+Diabetes Progression,0,PSO selection,101,211,1.0,
+Diabetes Progression,0,PSO selection,101,307,0.42857142857142855,
+Diabetes Progression,0,PSO selection,101,401,0.42857142857142855,
+Diabetes Progression,0,PSO selection,101,503,1.0,
+Diabetes Progression,0,PSO selection,211,307,0.42857142857142855,
+Diabetes Progression,0,PSO selection,211,401,0.42857142857142855,
+Diabetes Progression,0,PSO selection,211,503,1.0,
+Diabetes Progression,0,PSO selection,307,401,1.0,
+Diabetes Progression,0,PSO selection,307,503,0.42857142857142855,
+Diabetes Progression,0,PSO selection,401,503,0.42857142857142855,
+Diabetes Progression,0,PSO construction,101,211,0.375,0.9567515998892464
+Diabetes Progression,0,PSO construction,101,307,0.375,0.9683549096041819
+Diabetes Progression,0,PSO construction,101,401,0.4,0.949035694609308
+Diabetes Progression,0,PSO construction,101,503,0.3,0.9112419890437256
+Diabetes Progression,0,PSO construction,211,307,0.3333333333333333,0.952111599287433
+Diabetes Progression,0,PSO construction,211,401,0.375,0.9720860539836408
+Diabetes Progression,0,PSO construction,211,503,0.25,0.9305634945778747
+Diabetes Progression,0,PSO construction,307,401,0.2222222222222222,0.9616582046518247
+Diabetes Progression,0,PSO construction,307,503,0.1111111111111111,0.8814820658658097
+Diabetes Progression,0,PSO construction,401,503,0.625,0.9050174683847824
+Diabetes Progression,0,PSO combined,101,211,0.5714285714285714,0.5567809295286985
+Diabetes Progression,0,PSO combined,101,307,0.25,0.3580182713479118
+Diabetes Progression,0,PSO combined,101,401,0.125,0.19223592287635893
+Diabetes Progression,0,PSO combined,101,503,0.5,0.5190332426977841
+Diabetes Progression,0,PSO combined,211,307,0.375,0.28170154406928927
+Diabetes Progression,0,PSO combined,211,401,0.25,0.2240368492834424
+Diabetes Progression,0,PSO combined,211,503,0.4444444444444444,0.490560740022938
+Diabetes Progression,0,PSO combined,307,401,0.5,0.245034436523646
+Diabetes Progression,0,PSO combined,307,503,0.7142857142857143,0.5877810354168931
+Diabetes Progression,0,PSO combined,401,503,0.5714285714285714,0.690061158410015
+Diabetes Progression,0,ES selection,101,211,1.0,
+Diabetes Progression,0,ES selection,101,307,1.0,
+Diabetes Progression,0,ES selection,101,401,1.0,
+Diabetes Progression,0,ES selection,101,503,1.0,
+Diabetes Progression,0,ES selection,211,307,1.0,
+Diabetes Progression,0,ES selection,211,401,1.0,
+Diabetes Progression,0,ES selection,211,503,1.0,
+Diabetes Progression,0,ES selection,307,401,1.0,
+Diabetes Progression,0,ES selection,307,503,1.0,
+Diabetes Progression,0,ES selection,401,503,1.0,
+Diabetes Progression,0,ES construction,101,211,1.0,0.8496590021690775
+Diabetes Progression,0,ES construction,101,307,1.0,0.9011938471341348
+Diabetes Progression,0,ES construction,101,401,0.8,0.8051717492057309
+Diabetes Progression,0,ES construction,101,503,1.0,0.8623228902021379
+Diabetes Progression,0,ES construction,211,307,1.0,0.9365055647945408
+Diabetes Progression,0,ES construction,211,401,0.8,0.8066680985381366
+Diabetes Progression,0,ES construction,211,503,1.0,0.8046671161940185
+Diabetes Progression,0,ES construction,307,401,0.8,0.8272098762281339
+Diabetes Progression,0,ES construction,307,503,1.0,0.7614269669064416
+Diabetes Progression,0,ES construction,401,503,0.8,0.7682523881902286
+Diabetes Progression,0,ES combined,101,211,1.0,0.5103372166928474
+Diabetes Progression,0,ES combined,101,307,0.7777777777777778,0.6774942539597905
+Diabetes Progression,0,ES combined,101,401,0.6666666666666666,0.21722307346187134
+Diabetes Progression,0,ES combined,101,503,0.6666666666666666,0.5113963308681254
+Diabetes Progression,0,ES combined,211,307,0.7777777777777778,0.6741162340524791
+Diabetes Progression,0,ES combined,211,401,0.6666666666666666,0.39446511073272206
+Diabetes Progression,0,ES combined,211,503,0.6666666666666666,0.8328889696859005
+Diabetes Progression,0,ES combined,307,401,0.6666666666666666,0.13803259088662972
+Diabetes Progression,0,ES combined,307,503,0.5,0.6943700587645757
+Diabetes Progression,0,ES combined,401,503,0.75,0.3057201843035108
+Diabetes Progression,0,GP,101,211,1.0,0.07040285235896165
+Diabetes Progression,0,GP,101,307,1.0,0.2696992157737173
+Diabetes Progression,0,GP,101,401,1.0,0.0667777694831912
+Diabetes Progression,0,GP,101,503,1.0,0.36413175840051265
+Diabetes Progression,0,GP,211,307,1.0,0.15638476035540091
+Diabetes Progression,0,GP,211,401,1.0,0.9523022493299359
+Diabetes Progression,0,GP,211,503,1.0,0.14387925903608342
+Diabetes Progression,0,GP,307,401,1.0,0.1287565418213003
+Diabetes Progression,0,GP,307,503,1.0,0.34476237250729636
+Diabetes Progression,0,GP,401,503,1.0,0.11527653286690122
+Diabetes Progression,0,GP + GA,101,211,0.42857142857142855,0.28290011261587983
+Diabetes Progression,0,GP + GA,101,307,0.42857142857142855,0.7814730667059268
+Diabetes Progression,0,GP + GA,101,401,0.2857142857142857,0.6509072959878236
+Diabetes Progression,0,GP + GA,101,503,0.42857142857142855,0.5255166425350094
+Diabetes Progression,0,GP + GA,211,307,0.42857142857142855,0.4704233481869954
+Diabetes Progression,0,GP + GA,211,401,0.2857142857142857,0.4463288729768053
+Diabetes Progression,0,GP + GA,211,503,0.42857142857142855,0.18071244825506386
+Diabetes Progression,0,GP + GA,307,401,0.2857142857142857,0.36577274922891345
+Diabetes Progression,0,GP + GA,307,503,0.42857142857142855,0.4869666044469783
+Diabetes Progression,0,GP + GA,401,503,0.5,0.4828841093608892
+Diabetes Progression,0,GP + PSO,101,211,0.5,0.09170536936987105
+Diabetes Progression,0,GP + PSO,101,307,0.375,0.4651786126009265
+Diabetes Progression,0,GP + PSO,101,401,0.5,0.2851958612803248
+Diabetes Progression,0,GP + PSO,101,503,0.2222222222222222,0.44829310779595777
+Diabetes Progression,0,GP + PSO,211,307,0.3,0.33609564098317535
+Diabetes Progression,0,GP + PSO,211,401,0.5555555555555556,0.9528334454019188
+Diabetes Progression,0,GP + PSO,211,503,0.4444444444444444,0.3075630784874978
+Diabetes Progression,0,GP + PSO,307,401,0.4444444444444444,0.16740755021576936
+Diabetes Progression,0,GP + PSO,307,503,0.3333333333333333,0.2857072516257796
+Diabetes Progression,0,GP + PSO,401,503,0.625,0.6307458614784235
+Diabetes Progression,0,GP + ES,101,211,0.5,0.32408302526276184
+Diabetes Progression,0,GP + ES,101,307,1.0,0.24417332214138815
+Diabetes Progression,0,GP + ES,101,401,0.8,0.6872097078824351
+Diabetes Progression,0,GP + ES,101,503,0.7777777777777778,0.2084623839059978
+Diabetes Progression,0,GP + ES,211,307,0.5,0.3362924407836662
+Diabetes Progression,0,GP + ES,211,401,0.6666666666666666,0.9528334454019188
+Diabetes Progression,0,GP + ES,211,503,0.4444444444444444,0.28844516838896067
+Diabetes Progression,0,GP + ES,307,401,0.8,0.29952343183934943
+Diabetes Progression,0,GP + ES,307,503,0.7777777777777778,0.2614829223652166
+Diabetes Progression,0,GP + ES,401,503,0.6,0.3296277377296189
+Diabetes Progression,1,GA selection,101,211,0.625,
+Diabetes Progression,1,GA selection,101,307,0.625,
+Diabetes Progression,1,GA selection,101,401,0.75,
+Diabetes Progression,1,GA selection,101,503,0.625,
+Diabetes Progression,1,GA selection,211,307,0.7142857142857143,
+Diabetes Progression,1,GA selection,211,401,0.4444444444444444,
+Diabetes Progression,1,GA selection,211,503,1.0,
+Diabetes Progression,1,GA selection,307,401,0.625,
+Diabetes Progression,1,GA selection,307,503,0.7142857142857143,
+Diabetes Progression,1,GA selection,401,503,0.4444444444444444,
+Diabetes Progression,1,GA construction,101,211,0.25,0.7203900368522614
+Diabetes Progression,1,GA construction,101,307,0.25,0.7322344043043625
+Diabetes Progression,1,GA construction,101,401,0.0,0.7769494802705483
+Diabetes Progression,1,GA construction,101,503,0.0,0.8039217219960938
+Diabetes Progression,1,GA construction,211,307,0.5,0.5375733335267848
+Diabetes Progression,1,GA construction,211,401,0.0,0.5108115611458741
+Diabetes Progression,1,GA construction,211,503,0.0,0.8773024733883821
+Diabetes Progression,1,GA construction,307,401,0.16666666666666666,0.9353156515347583
+Diabetes Progression,1,GA construction,307,503,0.0,0.6277533603236115
+Diabetes Progression,1,GA construction,401,503,0.25,0.4328164440999798
+Diabetes Progression,1,GA combined,101,211,0.5,0.3067614496359697
+Diabetes Progression,1,GA combined,101,307,0.2222222222222222,0.27413328577330637
+Diabetes Progression,1,GA combined,101,401,0.5,0.7936024177863585
+Diabetes Progression,1,GA combined,101,503,0.375,0.17414218249404306
+Diabetes Progression,1,GA combined,211,307,0.4444444444444444,0.22916765999435917
+Diabetes Progression,1,GA combined,211,401,0.2222222222222222,0.22254709286579985
+Diabetes Progression,1,GA combined,211,503,0.625,0.5733365457296129
+Diabetes Progression,1,GA combined,307,401,0.42857142857142855,0.5315606348394745
+Diabetes Progression,1,GA combined,307,503,0.7142857142857143,0.5546909522676946
+Diabetes Progression,1,GA combined,401,503,0.42857142857142855,0.4569588220717533
+Diabetes Progression,1,PSO selection,101,211,0.4444444444444444,
+Diabetes Progression,1,PSO selection,101,307,0.4444444444444444,
+Diabetes Progression,1,PSO selection,101,401,1.0,
+Diabetes Progression,1,PSO selection,101,503,0.4444444444444444,
+Diabetes Progression,1,PSO selection,211,307,0.5555555555555556,
+Diabetes Progression,1,PSO selection,211,401,0.4444444444444444,
+Diabetes Progression,1,PSO selection,211,503,1.0,
+Diabetes Progression,1,PSO selection,307,401,0.4444444444444444,
+Diabetes Progression,1,PSO selection,307,503,0.5555555555555556,
+Diabetes Progression,1,PSO selection,401,503,0.4444444444444444,
+Diabetes Progression,1,PSO construction,101,211,0.5,0.8853407653972563
+Diabetes Progression,1,PSO construction,101,307,0.3333333333333333,0.8573290144766699
+Diabetes Progression,1,PSO construction,101,401,0.5714285714285714,0.8713844158359026
+Diabetes Progression,1,PSO construction,101,503,0.2,0.860784143102404
+Diabetes Progression,1,PSO construction,211,307,0.5,0.9121216063086807
+Diabetes Progression,1,PSO construction,211,401,0.375,0.9866242859828283
+Diabetes Progression,1,PSO construction,211,503,0.3333333333333333,0.9278783877635259
+Diabetes Progression,1,PSO construction,307,401,0.2222222222222222,0.8749494712209784
+Diabetes Progression,1,PSO construction,307,503,0.3333333333333333,0.8773693808731373
+Diabetes Progression,1,PSO construction,401,503,0.375,0.9051090335507659
+Diabetes Progression,1,PSO combined,101,211,0.4444444444444444,0.7405110410512782
+Diabetes Progression,1,PSO combined,101,307,0.4444444444444444,0.7196123370520953
+Diabetes Progression,1,PSO combined,101,401,0.5555555555555556,0.7889260566966642
+Diabetes Progression,1,PSO combined,101,503,0.6666666666666666,0.3803418608167602
+Diabetes Progression,1,PSO combined,211,307,0.25,0.16940986229226598
+Diabetes Progression,1,PSO combined,211,401,0.375,0.7385383853681126
+Diabetes Progression,1,PSO combined,211,503,0.3333333333333333,0.25623378688648274
+Diabetes Progression,1,PSO combined,307,401,0.375,0.5283140055001546
+Diabetes Progression,1,PSO combined,307,503,0.5,0.970272621313787
+Diabetes Progression,1,PSO combined,401,503,0.8571428571428571,0.521014116425035
+Diabetes Progression,1,ES selection,101,211,1.0,
+Diabetes Progression,1,ES selection,101,307,0.8571428571428571,
+Diabetes Progression,1,ES selection,101,401,1.0,
+Diabetes Progression,1,ES selection,101,503,1.0,
+Diabetes Progression,1,ES selection,211,307,0.8571428571428571,
+Diabetes Progression,1,ES selection,211,401,1.0,
+Diabetes Progression,1,ES selection,211,503,1.0,
+Diabetes Progression,1,ES selection,307,401,0.8571428571428571,
+Diabetes Progression,1,ES selection,307,503,0.8571428571428571,
+Diabetes Progression,1,ES selection,401,503,1.0,
+Diabetes Progression,1,ES construction,101,211,1.0,0.8382041034972492
+Diabetes Progression,1,ES construction,101,307,0.9,0.5709142259167078
+Diabetes Progression,1,ES construction,101,401,1.0,0.9341866932511291
+Diabetes Progression,1,ES construction,101,503,1.0,0.6301486681129637
+Diabetes Progression,1,ES construction,211,307,0.9,0.5952949789646677
+Diabetes Progression,1,ES construction,211,401,1.0,0.8116362448412068
+Diabetes Progression,1,ES construction,211,503,1.0,0.5634656596209479
+Diabetes Progression,1,ES construction,307,401,0.9,0.8336102763311908
+Diabetes Progression,1,ES construction,307,503,0.9,0.7525991428574651
+Diabetes Progression,1,ES construction,401,503,1.0,0.8024569312071101
+Diabetes Progression,1,ES combined,101,211,1.0,0.9512293174780323
+Diabetes Progression,1,ES combined,101,307,1.0,0.9327511661666572
+Diabetes Progression,1,ES combined,101,401,1.0,0.7341619781015799
+Diabetes Progression,1,ES combined,101,503,1.0,0.6138148390814082
+Diabetes Progression,1,ES combined,211,307,1.0,0.9107395234149092
+Diabetes Progression,1,ES combined,211,401,1.0,0.7478685133599414
+Diabetes Progression,1,ES combined,211,503,1.0,0.6222799290984191
+Diabetes Progression,1,ES combined,307,401,1.0,0.6275888479423465
+Diabetes Progression,1,ES combined,307,503,1.0,0.604137136398642
+Diabetes Progression,1,ES combined,401,503,1.0,0.9250958046994726
+Diabetes Progression,1,GP,101,211,1.0,0.5110990538237628
+Diabetes Progression,1,GP,101,307,1.0,0.8562273317531711
+Diabetes Progression,1,GP,101,401,1.0,0.43228300130006075
+Diabetes Progression,1,GP,101,503,1.0,0.6450642931163855
+Diabetes Progression,1,GP,211,307,1.0,0.5372535442843569
+Diabetes Progression,1,GP,211,401,1.0,0.6597232688505736
+Diabetes Progression,1,GP,211,503,1.0,0.6715968952943415
+Diabetes Progression,1,GP,307,401,1.0,0.6329313200896941
+Diabetes Progression,1,GP,307,503,1.0,0.5184140217068574
+Diabetes Progression,1,GP,401,503,1.0,0.43522380609962313
+Diabetes Progression,1,GP + GA,101,211,0.6666666666666666,0.2570940569432112
+Diabetes Progression,1,GP + GA,101,307,0.2,0.27923576943498424
+Diabetes Progression,1,GP + GA,101,401,0.4444444444444444,0.49335900843177016
+Diabetes Progression,1,GP + GA,101,503,0.2857142857142857,0.37149872149906327
+Diabetes Progression,1,GP + GA,211,307,0.3333333333333333,0.6737923757183872
+Diabetes Progression,1,GP + GA,211,401,0.3,0.8201400880279164
+Diabetes Progression,1,GP + GA,211,503,0.125,0.6834458850875658
+Diabetes Progression,1,GP + GA,307,401,0.6666666666666666,0.5332272026054112
+Diabetes Progression,1,GP + GA,307,503,0.2222222222222222,0.2655486930371437
+Diabetes Progression,1,GP + GA,401,503,0.3333333333333333,0.5185594263125182
+Diabetes Progression,1,GP + PSO,101,211,0.4,0.5018986497541401
+Diabetes Progression,1,GP + PSO,101,307,0.375,0.6848573342775139
+Diabetes Progression,1,GP + PSO,101,401,0.7142857142857143,0.6692078914394868
+Diabetes Progression,1,GP + PSO,101,503,0.3333333333333333,0.5865111269654045
+Diabetes Progression,1,GP + PSO,211,307,0.5,0.4291542421419521
+Diabetes Progression,1,GP + PSO,211,401,0.6,0.443712775004453
+Diabetes Progression,1,GP + PSO,211,503,0.6,0.3678379024772678
+Diabetes Progression,1,GP + PSO,307,401,0.4444444444444444,0.7051968605917592
+Diabetes Progression,1,GP + PSO,307,503,0.4444444444444444,0.7888867139109319
+Diabetes Progression,1,GP + PSO,401,503,0.5555555555555556,0.8440771505803869
+Diabetes Progression,1,GP + ES,101,211,1.0,0.8490958859126373
+Diabetes Progression,1,GP + ES,101,307,1.0,0.5009336950190383
+Diabetes Progression,1,GP + ES,101,401,1.0,0.7908530309623589
+Diabetes Progression,1,GP + ES,101,503,0.8181818181818182,0.5299130721117887
+Diabetes Progression,1,GP + ES,211,307,1.0,0.5222816725291751
+Diabetes Progression,1,GP + ES,211,401,1.0,0.8553455925921372
+Diabetes Progression,1,GP + ES,211,503,0.8181818181818182,0.5737446226478883
+Diabetes Progression,1,GP + ES,307,401,1.0,0.6429342098448022
+Diabetes Progression,1,GP + ES,307,503,0.8181818181818182,0.507898475255993
+Diabetes Progression,1,GP + ES,401,503,0.8181818181818182,0.6200370150982606
+Diabetes Progression,2,GA selection,101,211,0.4444444444444444,
+Diabetes Progression,2,GA selection,101,307,0.4444444444444444,
+Diabetes Progression,2,GA selection,101,401,0.4444444444444444,
+Diabetes Progression,2,GA selection,101,503,0.4444444444444444,
+Diabetes Progression,2,GA selection,211,307,1.0,
+Diabetes Progression,2,GA selection,211,401,1.0,
+Diabetes Progression,2,GA selection,211,503,1.0,
+Diabetes Progression,2,GA selection,307,401,1.0,
+Diabetes Progression,2,GA selection,307,503,1.0,
+Diabetes Progression,2,GA selection,401,503,1.0,
+Diabetes Progression,2,GA construction,101,211,0.6,0.9482692130247933
+Diabetes Progression,2,GA construction,101,307,0.0,0.965856703359943
+Diabetes Progression,2,GA construction,101,401,0.2,0.9454986509249559
+Diabetes Progression,2,GA construction,101,503,0.25,0.8650484933966777
+Diabetes Progression,2,GA construction,211,307,0.0,0.9576949871164492
+Diabetes Progression,2,GA construction,211,401,0.14285714285714285,0.8494232492847226
+Diabetes Progression,2,GA construction,211,503,0.16666666666666666,0.8010937577300227
+Diabetes Progression,2,GA construction,307,401,0.3333333333333333,0.9181506254759534
+Diabetes Progression,2,GA construction,307,503,0.0,0.8004253330247421
+Diabetes Progression,2,GA construction,401,503,0.0,0.8061086623568519
+Diabetes Progression,2,GA combined,101,211,0.375,0.22496956858340936
+Diabetes Progression,2,GA combined,101,307,0.3333333333333333,0.8564610289455216
+Diabetes Progression,2,GA combined,101,401,0.375,0.4922206127623228
+Diabetes Progression,2,GA combined,101,503,0.2857142857142857,0.40332550330703637
+Diabetes Progression,2,GA combined,211,307,0.375,0.6283033810535666
+Diabetes Progression,2,GA combined,211,401,0.25,0.21970825542655528
+Diabetes Progression,2,GA combined,211,503,0.3333333333333333,0.5045333420711737
+Diabetes Progression,2,GA combined,307,401,0.5714285714285714,0.3834436163346807
+Diabetes Progression,2,GA combined,307,503,0.2857142857142857,0.48437368588289753
+Diabetes Progression,2,GA combined,401,503,0.0,0.5623108095317606
+Diabetes Progression,2,PSO selection,101,211,1.0,
+Diabetes Progression,2,PSO selection,101,307,1.0,
+Diabetes Progression,2,PSO selection,101,401,0.625,
+Diabetes Progression,2,PSO selection,101,503,1.0,
+Diabetes Progression,2,PSO selection,211,307,1.0,
+Diabetes Progression,2,PSO selection,211,401,0.625,
+Diabetes Progression,2,PSO selection,211,503,1.0,
+Diabetes Progression,2,PSO selection,307,401,0.625,
+Diabetes Progression,2,PSO selection,307,503,1.0,
+Diabetes Progression,2,PSO selection,401,503,0.625,
+Diabetes Progression,2,PSO construction,101,211,0.7142857142857143,0.7599295766369866
+Diabetes Progression,2,PSO construction,101,307,0.3333333333333333,0.7382760417613761
+Diabetes Progression,2,PSO construction,101,401,0.125,0.309101510141476
+Diabetes Progression,2,PSO construction,101,503,0.25,0.3369158432535434
+Diabetes Progression,2,PSO construction,211,307,0.25,0.468131468062307
+Diabetes Progression,2,PSO construction,211,401,0.375,0.49757684958714027
+Diabetes Progression,2,PSO construction,211,503,0.5,0.33668692083393975
+Diabetes Progression,2,PSO construction,307,401,0.16666666666666666,0.7796616944183407
+Diabetes Progression,2,PSO construction,307,503,0.3333333333333333,0.9641391600216463
+Diabetes Progression,2,PSO construction,401,503,0.8,0.8817538431505867
+Diabetes Progression,2,PSO combined,101,211,0.5,0.325073632746519
+Diabetes Progression,2,PSO combined,101,307,0.5714285714285714,0.33082180345954093
+Diabetes Progression,2,PSO combined,101,401,0.6,0.4282482536328864
+Diabetes Progression,2,PSO combined,101,503,0.5,0.11040802401995736
+Diabetes Progression,2,PSO combined,211,307,0.625,0.45927167909774236
+Diabetes Progression,2,PSO combined,211,401,0.25,0.2532731126933319
+Diabetes Progression,2,PSO combined,211,503,0.75,0.33110662246796096
+Diabetes Progression,2,PSO combined,307,401,0.5,0.21435963705921343
+Diabetes Progression,2,PSO combined,307,503,0.8571428571428571,0.2736135122404834
+Diabetes Progression,2,PSO combined,401,503,0.42857142857142855,0.11272355507393522
+Diabetes Progression,2,ES selection,101,211,1.0,
+Diabetes Progression,2,ES selection,101,307,0.625,
+Diabetes Progression,2,ES selection,101,401,1.0,
+Diabetes Progression,2,ES selection,101,503,1.0,
+Diabetes Progression,2,ES selection,211,307,0.625,
+Diabetes Progression,2,ES selection,211,401,1.0,
+Diabetes Progression,2,ES selection,211,503,1.0,
+Diabetes Progression,2,ES selection,307,401,0.625,
+Diabetes Progression,2,ES selection,307,503,0.625,
+Diabetes Progression,2,ES selection,401,503,1.0,
+Diabetes Progression,2,ES construction,101,211,1.0,0.6037626456480373
+Diabetes Progression,2,ES construction,101,307,1.0,0.978709035695709
+Diabetes Progression,2,ES construction,101,401,1.0,0.4817873513635005
+Diabetes Progression,2,ES construction,101,503,1.0,0.5099860771666493
+Diabetes Progression,2,ES construction,211,307,1.0,0.6234853707343004
+Diabetes Progression,2,ES construction,211,401,1.0,0.6483091259375243
+Diabetes Progression,2,ES construction,211,503,1.0,0.5985480402567046
+Diabetes Progression,2,ES construction,307,401,1.0,0.5272064189059715
+Diabetes Progression,2,ES construction,307,503,1.0,0.4765212798459243
+Diabetes Progression,2,ES construction,401,503,1.0,0.8701453332571724
+Diabetes Progression,2,ES combined,101,211,0.9,0.28398069743200405
+Diabetes Progression,2,ES combined,101,307,1.0,0.6976890486385705
+Diabetes Progression,2,ES combined,101,401,1.0,0.8683282868578325
+Diabetes Progression,2,ES combined,101,503,0.9,0.7035427053003314
+Diabetes Progression,2,ES combined,211,307,0.9,0.35047992328593297
+Diabetes Progression,2,ES combined,211,401,0.9,0.35397632819128944
+Diabetes Progression,2,ES combined,211,503,1.0,0.543297315838188
+Diabetes Progression,2,ES combined,307,401,1.0,0.8689298543922389
+Diabetes Progression,2,ES combined,307,503,0.9,0.8270342797915345
+Diabetes Progression,2,ES combined,401,503,0.9,0.8504838953738314
+Diabetes Progression,2,GP,101,211,1.0,0.09729374680160523
+Diabetes Progression,2,GP,101,307,1.0,0.056038137005053675
+Diabetes Progression,2,GP,101,401,1.0,0.0988436170371774
+Diabetes Progression,2,GP,101,503,1.0,0.09577606877019129
+Diabetes Progression,2,GP,211,307,1.0,0.037068265898736956
+Diabetes Progression,2,GP,211,401,1.0,0.9567773511476254
+Diabetes Progression,2,GP,211,503,1.0,0.9542074380009716
+Diabetes Progression,2,GP,307,401,1.0,0.055430513201921994
+Diabetes Progression,2,GP,307,503,1.0,0.05615471605300547
+Diabetes Progression,2,GP,401,503,1.0,0.9995693195441818
+Diabetes Progression,2,GP + GA,101,211,0.625,0.7311133319308307
+Diabetes Progression,2,GP + GA,101,307,0.375,0.6732831370087473
+Diabetes Progression,2,GP + GA,101,401,0.625,0.7749940309192036
+Diabetes Progression,2,GP + GA,101,503,0.3333333333333333,0.2666698142639972
+Diabetes Progression,2,GP + GA,211,307,0.6666666666666666,0.4648724606742952
+Diabetes Progression,2,GP + GA,211,401,0.5,0.9523746593161359
+Diabetes Progression,2,GP + GA,211,503,0.375,0.7213589690480912
+Diabetes Progression,2,GP + GA,307,401,0.25,0.47534416711566757
+Diabetes Progression,2,GP + GA,307,503,0.5,0.308883825410163
+Diabetes Progression,2,GP + GA,401,503,0.375,0.33537024347124034
+Diabetes Progression,2,GP + PSO,101,211,0.375,0.27094804219071994
+Diabetes Progression,2,GP + PSO,101,307,1.0,0.7538455594105787
+Diabetes Progression,2,GP + PSO,101,401,0.25,0.534669589556875
+Diabetes Progression,2,GP + PSO,101,503,0.625,0.7136785858385624
+Diabetes Progression,2,GP + PSO,211,307,0.375,0.21183640341237042
+Diabetes Progression,2,GP + PSO,211,401,0.2857142857142857,0.9523746593161359
+Diabetes Progression,2,GP + PSO,211,503,0.3333333333333333,0.9539999550573699
+Diabetes Progression,2,GP + PSO,307,401,0.25,0.32664553017413434
+Diabetes Progression,2,GP + PSO,307,503,0.625,0.6602474224724476
+Diabetes Progression,2,GP + PSO,401,503,0.5714285714285714,0.9996199263395359
+Diabetes Progression,2,GP + ES,101,211,0.45454545454545453,0.45068823050018625
+Diabetes Progression,2,GP + ES,101,307,0.7,0.31973541718823345
+Diabetes Progression,2,GP + ES,101,401,0.7272727272727273,0.536303925633056
+Diabetes Progression,2,GP + ES,101,503,0.7272727272727273,0.534886411839405
+Diabetes Progression,2,GP + ES,211,307,0.7,0.3636864318601167
+Diabetes Progression,2,GP + ES,211,401,0.7272727272727273,0.9523746593161359
+Diabetes Progression,2,GP + ES,211,503,0.7272727272727273,0.9539999550573699
+Diabetes Progression,2,GP + ES,307,401,0.8181818181818182,0.35548282618069954
+Diabetes Progression,2,GP + ES,307,503,0.8181818181818182,0.5167656661907643
+Diabetes Progression,2,GP + ES,401,503,1.0,0.9996199263395359
+Diabetes Progression,3,GA selection,101,211,1.0,
+Diabetes Progression,3,GA selection,101,307,0.625,
+Diabetes Progression,3,GA selection,101,401,0.625,
+Diabetes Progression,3,GA selection,101,503,0.625,
+Diabetes Progression,3,GA selection,211,307,0.625,
+Diabetes Progression,3,GA selection,211,401,0.625,
+Diabetes Progression,3,GA selection,211,503,0.625,
+Diabetes Progression,3,GA selection,307,401,1.0,
+Diabetes Progression,3,GA selection,307,503,1.0,
+Diabetes Progression,3,GA selection,401,503,1.0,
+Diabetes Progression,3,GA construction,101,211,0.25,0.8805593977983442
+Diabetes Progression,3,GA construction,101,307,0.0,0.8354511766916974
+Diabetes Progression,3,GA construction,101,401,0.3333333333333333,0.8486625041067964
+Diabetes Progression,3,GA construction,101,503,0.0,0.8988623879652305
+Diabetes Progression,3,GA construction,211,307,0.0,0.9490967693327821
+Diabetes Progression,3,GA construction,211,401,0.75,0.9089740361303317
+Diabetes Progression,3,GA construction,211,503,0.16666666666666666,0.9748709326880769
+Diabetes Progression,3,GA construction,307,401,0.0,0.8871835106139508
+Diabetes Progression,3,GA construction,307,503,0.25,0.9545204358607364
+Diabetes Progression,3,GA construction,401,503,0.2,0.9418295255912055
+Diabetes Progression,3,GA combined,101,211,0.16666666666666666,0.43862375687241884
+Diabetes Progression,3,GA combined,101,307,0.4,0.6499719611237048
+Diabetes Progression,3,GA combined,101,401,0.2,0.43317278517744323
+Diabetes Progression,3,GA combined,101,503,0.0,0.5232352733990542
+Diabetes Progression,3,GA combined,211,307,0.6666666666666666,0.7339059722456756
+Diabetes Progression,3,GA combined,211,401,0.8,0.7839394239794812
+Diabetes Progression,3,GA combined,211,503,0.4,0.4134453677609532
+Diabetes Progression,3,GA combined,307,401,0.8,0.7843623842085861
+Diabetes Progression,3,GA combined,307,503,0.16666666666666666,0.6306091005193218
+Diabetes Progression,3,GA combined,401,503,0.2,0.3937666810708538
+Diabetes Progression,3,PSO selection,101,211,1.0,
+Diabetes Progression,3,PSO selection,101,307,0.5,
+Diabetes Progression,3,PSO selection,101,401,0.625,
+Diabetes Progression,3,PSO selection,101,503,1.0,
+Diabetes Progression,3,PSO selection,211,307,0.5,
+Diabetes Progression,3,PSO selection,211,401,0.625,
+Diabetes Progression,3,PSO selection,211,503,1.0,
+Diabetes Progression,3,PSO selection,307,401,0.5714285714285714,
+Diabetes Progression,3,PSO selection,307,503,0.5,
+Diabetes Progression,3,PSO selection,401,503,0.625,
+Diabetes Progression,3,PSO construction,101,211,0.3333333333333333,0.6252340387807441
+Diabetes Progression,3,PSO construction,101,307,0.5,0.9528724366970182
+Diabetes Progression,3,PSO construction,101,401,0.5714285714285714,0.9402676253930332
+Diabetes Progression,3,PSO construction,101,503,0.625,0.6369710255621448
+Diabetes Progression,3,PSO construction,211,307,0.14285714285714285,0.683998096687843
+Diabetes Progression,3,PSO construction,211,401,0.16666666666666666,0.7723929376969919
+Diabetes Progression,3,PSO construction,211,503,0.2857142857142857,0.7934114700693752
+Diabetes Progression,3,PSO construction,307,401,0.375,0.8971132059697161
+Diabetes Progression,3,PSO construction,307,503,0.625,0.6600843642674513
+Diabetes Progression,3,PSO construction,401,503,0.5,0.7727152168483312
+Diabetes Progression,3,PSO combined,101,211,0.5,0.4601757324318574
+Diabetes Progression,3,PSO combined,101,307,0.375,0.374647527937172
+Diabetes Progression,3,PSO combined,101,401,0.5714285714285714,0.380515719434169
+Diabetes Progression,3,PSO combined,101,503,0.16666666666666666,0.6598946135521556
+Diabetes Progression,3,PSO combined,211,307,0.42857142857142855,0.3882105096441911
+Diabetes Progression,3,PSO combined,211,401,0.42857142857142855,0.47175069086870497
+Diabetes Progression,3,PSO combined,211,503,0.5,0.2174223370003505
+Diabetes Progression,3,PSO combined,307,401,0.3333333333333333,0.8953404514007116
+Diabetes Progression,3,PSO combined,307,503,0.3333333333333333,0.47956605997045293
+Diabetes Progression,3,PSO combined,401,503,0.14285714285714285,0.3259633634128541
+Diabetes Progression,3,ES selection,101,211,1.0,
+Diabetes Progression,3,ES selection,101,307,1.0,
+Diabetes Progression,3,ES selection,101,401,1.0,
+Diabetes Progression,3,ES selection,101,503,1.0,
+Diabetes Progression,3,ES selection,211,307,1.0,
+Diabetes Progression,3,ES selection,211,401,1.0,
+Diabetes Progression,3,ES selection,211,503,1.0,
+Diabetes Progression,3,ES selection,307,401,1.0,
+Diabetes Progression,3,ES selection,307,503,1.0,
+Diabetes Progression,3,ES selection,401,503,1.0,
+Diabetes Progression,3,ES construction,101,211,1.0,0.7934871810390286
+Diabetes Progression,3,ES construction,101,307,1.0,0.8082445377575469
+Diabetes Progression,3,ES construction,101,401,1.0,0.9374239517436604
+Diabetes Progression,3,ES construction,101,503,1.0,0.9375924016949769
+Diabetes Progression,3,ES construction,211,307,1.0,0.8756160223302011
+Diabetes Progression,3,ES construction,211,401,1.0,0.8873393618317466
+Diabetes Progression,3,ES construction,211,503,1.0,0.9166652008633602
+Diabetes Progression,3,ES construction,307,401,1.0,0.8883889345978245
+Diabetes Progression,3,ES construction,307,503,1.0,0.8932221490287177
+Diabetes Progression,3,ES construction,401,503,1.0,0.9883528643436461
+Diabetes Progression,3,ES combined,101,211,0.7142857142857143,0.1143773295509283
+Diabetes Progression,3,ES combined,101,307,0.4444444444444444,0.5449310319102152
+Diabetes Progression,3,ES combined,101,401,0.6666666666666666,0.28633390013990634
+Diabetes Progression,3,ES combined,101,503,0.4444444444444444,0.4481346872530323
+Diabetes Progression,3,ES combined,211,307,0.625,0.40938870906043173
+Diabetes Progression,3,ES combined,211,401,0.6666666666666666,0.35651409377765575
+Diabetes Progression,3,ES combined,211,503,0.4444444444444444,0.34032332893731954
+Diabetes Progression,3,ES combined,307,401,0.6,0.7261198943855468
+Diabetes Progression,3,ES combined,307,503,0.5555555555555556,0.729930860023284
+Diabetes Progression,3,ES combined,401,503,0.6,0.4311599088365608
+Diabetes Progression,3,GP,101,211,1.0,0.036662454254442714
+Diabetes Progression,3,GP,101,307,1.0,0.628493182106888
+Diabetes Progression,3,GP,101,401,1.0,0.40116551387557337
+Diabetes Progression,3,GP,101,503,1.0,0.24138469008907823
+Diabetes Progression,3,GP,211,307,1.0,0.09779087902015304
+Diabetes Progression,3,GP,211,401,1.0,0.2333964086480947
+Diabetes Progression,3,GP,211,503,1.0,0.005187358765868291
+Diabetes Progression,3,GP,307,401,1.0,0.37861680834668127
+Diabetes Progression,3,GP,307,503,1.0,0.21848659669921786
+Diabetes Progression,3,GP,401,503,1.0,0.5634048338972814
+Diabetes Progression,3,GP + GA,101,211,0.5714285714285714,0.5769689443918296
+Diabetes Progression,3,GP + GA,101,307,0.375,0.6746520125730019
+Diabetes Progression,3,GP + GA,101,401,0.5,0.4692784048586737
+Diabetes Progression,3,GP + GA,101,503,0.5,0.3429701642150255
+Diabetes Progression,3,GP + GA,211,307,0.6,0.811518560191779
+Diabetes Progression,3,GP + GA,211,401,0.5,0.6141358641168481
+Diabetes Progression,3,GP + GA,211,503,0.5,0.7352711419939802
+Diabetes Progression,3,GP + GA,307,401,0.5,0.5942748240386868
+Diabetes Progression,3,GP + GA,307,503,0.2857142857142857,0.6809023143498825
+Diabetes Progression,3,GP + GA,401,503,0.42857142857142855,0.5228358549776302
+Diabetes Progression,3,GP + PSO,101,211,0.375,0.32678956911612705
+Diabetes Progression,3,GP + PSO,101,307,0.25,0.3463016255620792
+Diabetes Progression,3,GP + PSO,101,401,0.625,0.3808390848250653
+Diabetes Progression,3,GP + PSO,101,503,0.75,0.6333307967774453
+Diabetes Progression,3,GP + PSO,211,307,0.4,0.1902107537496912
+Diabetes Progression,3,GP + PSO,211,401,0.6666666666666666,0.7164465602413563
+Diabetes Progression,3,GP + PSO,211,503,0.375,0.6692352993094225
+Diabetes Progression,3,GP + PSO,307,401,0.2857142857142857,0.34602584306530076
+Diabetes Progression,3,GP + PSO,307,503,0.25,0.31021730629557415
+Diabetes Progression,3,GP + PSO,401,503,0.625,0.3532253704119461
+Diabetes Progression,3,GP + ES,101,211,0.7272727272727273,0.6615392614747755
+Diabetes Progression,3,GP + ES,101,307,0.6,0.590266252098473
+Diabetes Progression,3,GP + ES,101,401,1.0,0.672393706677866
+Diabetes Progression,3,GP + ES,101,503,0.4444444444444444,0.3685585506072031
+Diabetes Progression,3,GP + ES,211,307,0.7272727272727273,0.6785685672357444
+Diabetes Progression,3,GP + ES,211,401,0.7272727272727273,0.7541981194885333
+Diabetes Progression,3,GP + ES,211,503,0.45454545454545453,0.6643198910257002
+Diabetes Progression,3,GP + ES,307,401,0.6,0.6584233343481671
+Diabetes Progression,3,GP + ES,307,503,0.4444444444444444,0.4956812942254271
+Diabetes Progression,3,GP + ES,401,503,0.4444444444444444,0.5127230177138703
+Diabetes Progression,4,GA selection,101,211,0.8333333333333334,
+Diabetes Progression,4,GA selection,101,307,0.42857142857142855,
+Diabetes Progression,4,GA selection,101,401,1.0,
+Diabetes Progression,4,GA selection,101,503,0.6666666666666666,
+Diabetes Progression,4,GA selection,211,307,0.5714285714285714,
+Diabetes Progression,4,GA selection,211,401,0.8333333333333334,
+Diabetes Progression,4,GA selection,211,503,0.8333333333333334,
+Diabetes Progression,4,GA selection,307,401,0.42857142857142855,
+Diabetes Progression,4,GA selection,307,503,0.6666666666666666,
+Diabetes Progression,4,GA selection,401,503,0.6666666666666666,
+Diabetes Progression,4,GA construction,101,211,0.6,0.7475377120320863
+Diabetes Progression,4,GA construction,101,307,0.14285714285714285,0.8413237878263751
+Diabetes Progression,4,GA construction,101,401,0.3333333333333333,0.6906567165091129
+Diabetes Progression,4,GA construction,101,503,0.2857142857142857,0.816053126696558
+Diabetes Progression,4,GA construction,211,307,0.2,0.9216254087318924
+Diabetes Progression,4,GA construction,211,401,0.2,0.7654059789765856
+Diabetes Progression,4,GA construction,211,503,0.16666666666666666,0.8876854049432767
+Diabetes Progression,4,GA construction,307,401,0.2,0.5983084716917032
+Diabetes Progression,4,GA construction,307,503,0.16666666666666666,0.9183197643893455
+Diabetes Progression,4,GA construction,401,503,0.4,0.6358317300418924
+Diabetes Progression,4,GA combined,101,211,0.5,0.7496339399968908
+Diabetes Progression,4,GA combined,101,307,0.3333333333333333,0.23788409245237532
+Diabetes Progression,4,GA combined,101,401,0.3333333333333333,0.2585179920915327
+Diabetes Progression,4,GA combined,101,503,0.3333333333333333,0.24071421683640662
+Diabetes Progression,4,GA combined,211,307,0.375,0.13874291455107107
+Diabetes Progression,4,GA combined,211,401,0.375,0.9153826071916085
+Diabetes Progression,4,GA combined,211,503,0.5714285714285714,0.5198412982655126
+Diabetes Progression,4,GA combined,307,401,0.42857142857142855,0.20821638359477343
+Diabetes Progression,4,GA combined,307,503,0.6666666666666666,0.21751071637833314
+Diabetes Progression,4,GA combined,401,503,0.6666666666666666,0.4441057426567472
+Diabetes Progression,4,PSO selection,101,211,0.5555555555555556,
+Diabetes Progression,4,PSO selection,101,307,0.625,
+Diabetes Progression,4,PSO selection,101,401,0.625,
+Diabetes Progression,4,PSO selection,101,503,0.625,
+Diabetes Progression,4,PSO selection,211,307,0.375,
+Diabetes Progression,4,PSO selection,211,401,0.375,
+Diabetes Progression,4,PSO selection,211,503,0.5714285714285714,
+Diabetes Progression,4,PSO selection,307,401,1.0,
+Diabetes Progression,4,PSO selection,307,503,0.42857142857142855,
+Diabetes Progression,4,PSO selection,401,503,0.42857142857142855,
+Diabetes Progression,4,PSO construction,101,211,0.3333333333333333,0.9844331234174725
+Diabetes Progression,4,PSO construction,101,307,0.625,0.9433543841106055
+Diabetes Progression,4,PSO construction,101,401,0.8571428571428571,0.8228773203645776
+Diabetes Progression,4,PSO construction,101,503,0.375,0.9678826851925991
+Diabetes Progression,4,PSO construction,211,307,0.5714285714285714,0.9633705215931132
+Diabetes Progression,4,PSO construction,211,401,0.375,0.8439994252017845
+Diabetes Progression,4,PSO construction,211,503,0.2857142857142857,0.9614997500018748
+Diabetes Progression,4,PSO construction,307,401,0.5,0.930716633661727
+Diabetes Progression,4,PSO construction,307,503,0.42857142857142855,0.9582355180633875
+Diabetes Progression,4,PSO construction,401,503,0.25,0.8725281342126631
+Diabetes Progression,4,PSO combined,101,211,0.5714285714285714,0.9044878348800264
+Diabetes Progression,4,PSO combined,101,307,0.5714285714285714,0.9534769944720828
+Diabetes Progression,4,PSO combined,101,401,0.8333333333333334,0.7135568227932242
+Diabetes Progression,4,PSO combined,101,503,0.375,0.6873256870200467
+Diabetes Progression,4,PSO combined,211,307,0.5,0.947953550771897
+Diabetes Progression,4,PSO combined,211,401,0.7142857142857143,0.78502075913775
+Diabetes Progression,4,PSO combined,211,503,0.5,0.6162608300143357
+Diabetes Progression,4,PSO combined,307,401,0.7142857142857143,0.8434777479555967
+Diabetes Progression,4,PSO combined,307,503,0.5,0.5937856239310684
+Diabetes Progression,4,PSO combined,401,503,0.5,0.8535874818612212
+Diabetes Progression,4,ES selection,101,211,0.42857142857142855,
+Diabetes Progression,4,ES selection,101,307,0.375,
+Diabetes Progression,4,ES selection,101,401,0.42857142857142855,
+Diabetes Progression,4,ES selection,101,503,0.42857142857142855,
+Diabetes Progression,4,ES selection,211,307,0.8333333333333334,
+Diabetes Progression,4,ES selection,211,401,1.0,
+Diabetes Progression,4,ES selection,211,503,1.0,
+Diabetes Progression,4,ES selection,307,401,0.8333333333333334,
+Diabetes Progression,4,ES selection,307,503,0.8333333333333334,
+Diabetes Progression,4,ES selection,401,503,1.0,
+Diabetes Progression,4,ES construction,101,211,1.0,0.8193837696653175
+Diabetes Progression,4,ES construction,101,307,0.7,0.7100311882852091
+Diabetes Progression,4,ES construction,101,401,1.0,0.949786042782275
+Diabetes Progression,4,ES construction,101,503,1.0,0.8385735733033541
+Diabetes Progression,4,ES construction,211,307,0.7,0.9087732211056505
+Diabetes Progression,4,ES construction,211,401,1.0,0.8077622294870539
+Diabetes Progression,4,ES construction,211,503,1.0,0.7843476106361712
+Diabetes Progression,4,ES construction,307,401,0.7,0.7330619670272774
+Diabetes Progression,4,ES construction,307,503,0.7,0.8378765979829589
+Diabetes Progression,4,ES construction,401,503,1.0,0.9174243957569603
+Diabetes Progression,4,ES combined,101,211,1.0,0.836876687892421
+Diabetes Progression,4,ES combined,101,307,0.9,0.8563951441469413
+Diabetes Progression,4,ES combined,101,401,0.8888888888888888,0.9337253241001618
+Diabetes Progression,4,ES combined,101,503,0.9,0.9124290688667802
+Diabetes Progression,4,ES combined,211,307,0.9,0.7759211411680788
+Diabetes Progression,4,ES combined,211,401,0.8888888888888888,0.8919861087590761
+Diabetes Progression,4,ES combined,211,503,0.9,0.8365777202447237
+Diabetes Progression,4,ES combined,307,401,0.8,0.8023519152267532
+Diabetes Progression,4,ES combined,307,503,1.0,0.7147512956684688
+Diabetes Progression,4,ES combined,401,503,0.8,0.9439155086832637
+Diabetes Progression,4,GP,101,211,1.0,0.5652072193979261
+Diabetes Progression,4,GP,101,307,1.0,0.44884485166146165
+Diabetes Progression,4,GP,101,401,1.0,0.8695576618537676
+Diabetes Progression,4,GP,101,503,1.0,0.7905613728481538
+Diabetes Progression,4,GP,211,307,1.0,0.003941249439274634
+Diabetes Progression,4,GP,211,401,1.0,0.5015630564425153
+Diabetes Progression,4,GP,211,503,1.0,0.2915617467272876
+Diabetes Progression,4,GP,307,401,1.0,0.46623788135984445
+Diabetes Progression,4,GP,307,503,1.0,0.680818625946255
+Diabetes Progression,4,GP,401,503,1.0,0.7358702458038673
+Diabetes Progression,4,GP + GA,101,211,0.42857142857142855,0.4085554660475527
+Diabetes Progression,4,GP + GA,101,307,0.42857142857142855,0.8005693045137151
+Diabetes Progression,4,GP + GA,101,401,0.6666666666666666,0.6336580674818716
+Diabetes Progression,4,GP + GA,101,503,0.5,0.4135807610217884
+Diabetes Progression,4,GP + GA,211,307,0.42857142857142855,0.33677828846618524
+Diabetes Progression,4,GP + GA,211,401,0.42857142857142855,0.32750054456706296
+Diabetes Progression,4,GP + GA,211,503,0.3333333333333333,0.5554588182942473
+Diabetes Progression,4,GP + GA,307,401,0.42857142857142855,0.5426449859626213
+Diabetes Progression,4,GP + GA,307,503,0.3333333333333333,0.49772748995732247
+Diabetes Progression,4,GP + GA,401,503,0.5,0.5320418665127489
+Diabetes Progression,4,GP + PSO,101,211,0.5,0.5210571124082469
+Diabetes Progression,4,GP + PSO,101,307,0.8333333333333334,0.2828908698088976
+Diabetes Progression,4,GP + PSO,101,401,0.45454545454545453,0.6468914784978087
+Diabetes Progression,4,GP + PSO,101,503,0.6,0.9169817376223832
+Diabetes Progression,4,GP + PSO,211,307,0.4,0.7927757001351573
+Diabetes Progression,4,GP + PSO,211,401,0.7272727272727273,0.6399703572061872
+Diabetes Progression,4,GP + PSO,211,503,0.9,0.5249701335159394
+Diabetes Progression,4,GP + PSO,307,401,0.36363636363636365,0.3959920981166025
+Diabetes Progression,4,GP + PSO,307,503,0.5,0.8833325248652064
+Diabetes Progression,4,GP + PSO,401,503,0.8181818181818182,0.4518421559300201
+Diabetes Progression,4,GP + ES,101,211,0.9,0.1322385628098901
+Diabetes Progression,4,GP + ES,101,307,1.0,0.43158897119673034
+Diabetes Progression,4,GP + ES,101,401,0.8181818181818182,0.22757505327565355
+Diabetes Progression,4,GP + ES,101,503,0.7272727272727273,0.9169817376223832
+Diabetes Progression,4,GP + ES,211,307,0.9,0.37179767216330395
+Diabetes Progression,4,GP + ES,211,401,0.7272727272727273,0.5866902798809585
+Diabetes Progression,4,GP + ES,211,503,0.6363636363636364,0.33469559207646493
+Diabetes Progression,4,GP + ES,307,401,0.8181818181818182,0.5706853495806895
+Diabetes Progression,4,GP + ES,307,503,0.7272727272727273,0.5477533224114656
+Diabetes Progression,4,GP + ES,401,503,0.7272727272727273,0.31632020109591946
