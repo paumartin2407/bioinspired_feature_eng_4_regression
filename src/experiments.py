@@ -30,7 +30,7 @@ def read_config(path):
 
 
 def allocated_budgets(ks, budget, strategy):
-    active = [k for k in ks if strategy == "selection" or k > 0]
+    active = [k for k in ks if strategy in ("selection", "combined") or k > 0]
     if not active:
         return {}
     if budget < 40 * len(active):
@@ -54,6 +54,31 @@ def _apply_pair(train, other, arm, candidate, k):
         return feature_pair(train, other, candidate)
     return (transform(train, arm["strategy"], arm["family"], candidate, k),
             transform(other, arm["strategy"], arm["family"], candidate, k))
+
+
+def construction_inputs(family, candidate, d, k):
+    if k == 0:
+        return set()
+    if family == "quadratic":
+        return set(np.flatnonzero(np.any(np.abs(np.asarray(candidate).reshape(k, d)) > 1e-12, axis=0)))
+    if family == "rbf":
+        return set(range(d))  # Every input contributes to each squared distance.
+    if family == "interactions":
+        pairs = np.minimum(((np.asarray(candidate).reshape(k, 2) + 1) * d / 2).astype(int), d - 1)
+        return set(pairs.ravel())
+    if family == "gp":
+        def leaves(tree):
+            if tree[0] == "x":
+                return {int(tree[1])}
+            if tree[0] == "c":
+                return set()
+            return leaves(tree[1]) | leaves(tree[2])
+        return set().union(*(leaves(tree) for tree in candidate))
+    raise ValueError(f"Unknown feature family: {family}")
+
+
+def array_digest(values):
+    return hashlib.sha256(np.ascontiguousarray(values, dtype="<f8").tobytes()).hexdigest()
 
 
 def matched_stability(first, second):
@@ -149,12 +174,27 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
                    "delta_mae": report["mae"] - baseline_test_mae,
                    "mae_reduction_pct": 100 * (baseline_test_mae - report["mae"]) / baseline_test_mae
                    if baseline_test_mae else float("nan")})
+    direct_mask = np.ones(len(columns), dtype=bool) if fallback or strategy == "construction" else decode(
+        strategy, family, candidate, len(columns), selected_k)[0]
+    direct_names = [name for name, keep in zip(columns, direct_mask) if keep]
+    construction_genes = candidate if family == "gp" else decode(
+        strategy, family, candidate, len(columns), selected_k)[1]
+    constructed_indices = set() if fallback else construction_inputs(family, construction_genes, len(columns), selected_k)
+    constructed_names = [columns[index] for index in sorted(constructed_indices)]
+    report["construction_input_count"] = len(constructed_names)
+    report["effective_original_count"] = len(set(direct_names) | set(constructed_names))
     definition = {"arm": arm["name"], "k": selected_k, "columns": columns,
                   "candidate": _jsonable(candidate), "inner_scores": {str(k): scores[k] for k in ks},
+                  "evaluation_allocation": {str(k): allocation.get(k, 0) for k in ks},
+                  "learner_parameter": parameter, "fallback": fallback,
+                  "direct_originals": direct_names,
+                  "construction_inputs": constructed_names,
+                  "dev_features_sha256": array_digest(train_features) if np.isfinite(train_features).all() else None,
+                  "test_features_sha256": array_digest(test_features) if np.isfinite(test_features).all() else None,
+                  "prediction_sha256": array_digest(prediction) if not outer_failure else None,
                   "gp_nodes": sum(node_count(tree) for tree in candidate) if family == "gp" and not fallback else 0}
     report["gp_nodes"] = definition["gp_nodes"]
-    selected = set(columns) if fallback or strategy in ("none", "construction") else set(
-        name for name, keep in zip(columns, decode(strategy, family, candidate, len(columns), selected_k)[0]) if keep)
+    selected = set(direct_names)
     constructed = train_features[:, len(selected):]
     finite_construction = np.isfinite(constructed).all()
     report["constant_constructed"] = int(sum(np.std(constructed[:, j]) < 1e-9 for j in range(constructed.shape[1]))) if finite_construction else float("nan")

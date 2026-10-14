@@ -8,8 +8,9 @@ import pandas as pd
 from src.data import fit_preprocessor, prepared_folds, transformed
 from src.evaluation import candidate_fitness, choose_learner
 from src.experiments import allocated_budgets, matched_stability, read_config, run, run_arm
-from src.gp_features import feature_pair, node_count, optimize_gp
+from src.gp_features import evaluate as evaluate_gp, feature_pair, node_count, optimize_gp
 from src.optimizers import METHODS, optimize
+from src.replay import replay
 from src.representations import construct
 from src.strategies import transform
 
@@ -32,6 +33,24 @@ class RepresentationTests(unittest.TestCase):
         self.assertEqual(combined.shape, (2, 2))
         np.testing.assert_allclose(combined[:, 1], X[:, 1] ** 2)
         self.assertEqual(transform(X, "construction", "quadratic", [], 0).shape, X.shape)
+        np.testing.assert_allclose(transform(X, "selection", "quadratic", [-0.9, -0.3], 0), X[:, 1:2])
+
+    def test_numerical_edges_and_duplicate_interactions(self):
+        distant = construct(np.array([[1e6, -1e6], [2e6, 2e6]]), [0., 0., 0.], "rbf", 1)
+        self.assertTrue(np.isfinite(distant).all())
+        np.testing.assert_allclose(distant, 0.)
+        X = np.array([[2., 3.], [4., 5.]])
+        repeated = construct(X, [-1., -1., -1., -1.], "interactions", 2)
+        np.testing.assert_allclose(repeated[:, 0], repeated[:, 1])
+        self.assertEqual(np.linalg.matrix_rank(repeated), 1)
+        huge = evaluate_gp(("*", ("x", 0), ("x", 0)), np.array([[1e200], [-1e200]]))
+        np.testing.assert_allclose(huge, [1e6, 1e6])
+        accounting = {"fits": 0, "failed_folds": 0, "failed_candidates": 0}
+        fold = [(np.array([[1e200], [2e200]]), np.array([[3e200]]),
+                 np.array([0., 1.]), np.array([2.]), None, None)]
+        score = candidate_fitness(fold, "construction", "quadratic", 1, "ols", None, 1, accounting)([1.])
+        self.assertEqual(score, float("inf"))
+        self.assertEqual(accounting["failed_candidates"], 1)
 
     def test_gp_set_and_train_only_scaling(self):
         train, held = np.array([[0.], [1.], [2.]]), np.array([[100.]])
@@ -47,6 +66,8 @@ class RepresentationTests(unittest.TestCase):
 class ProtocolTests(unittest.TestCase):
     def test_budget_allocation_and_optimizer_count(self):
         self.assertEqual(allocated_budgets([0, 1, 2, 4], 121, "construction"), {1: 41, 2: 40, 4: 40})
+        self.assertEqual(allocated_budgets([0, 1, 2, 4], 160, "combined"),
+                         {0: 40, 1: 40, 2: 40, 4: 40})
         for method in METHODS:
             with self.subTest(method=method):
                 result = optimize(method, lambda genes: float(np.square(genes).sum()), 3, 3, 41)
@@ -65,6 +86,7 @@ class ProtocolTests(unittest.TestCase):
         self.assertEqual(report["fe_model_fits"], 244)
         self.assertEqual(set(definition["inner_scores"]), {"0", "1", "2"})
         self.assertEqual(trace[-1]["global_evaluation"], 81)
+        self.assertEqual(sum(definition["evaluation_allocation"].values()), 81)
         self.assertEqual(matched_stability(signature, signature), (1.0, 1.0))
 
     def test_fold_local_preprocessing_and_fit_count(self):
@@ -77,9 +99,12 @@ class ProtocolTests(unittest.TestCase):
         objective = candidate_fitness(folds, "construction", "quadratic", 1, "ols", None, 1, accounting)
         self.assertTrue(np.isfinite(objective(np.zeros(len(columns)))))
         self.assertEqual(accounting["fits"], 3)
-        parameter, fits, _ = choose_learner("ridge", folds, 1)
+        parameter, fits, scores = choose_learner("ridge", folds, 1)
         self.assertIn(parameter, [0.1, 1., 10., 100.])
         self.assertEqual(fits, 12)
+        baseline = candidate_fitness(folds, "construction", "quadratic", 0,
+                                     "ridge", parameter, 1, {"fits": 0, "failed_folds": 0})([])
+        self.assertAlmostEqual(baseline, min(scores))
         train = X.iloc[:20]
         prep = fit_preprocessor(train)
         original = transformed(prep, X.iloc[20:])
@@ -87,6 +112,23 @@ class ProtocolTests(unittest.TestCase):
         changed.iloc[0, 0] = 1e9
         np.testing.assert_allclose(transformed(prep, train), transformed(fit_preprocessor(train), train))
         self.assertFalse(np.allclose(original, transformed(prep, changed)))
+
+    def test_representations_with_all_learners(self):
+        rng = np.random.default_rng(41)
+        X = pd.DataFrame(rng.normal(size=(36, 3)), columns=list("abc"))
+        y = (X.a * X.b + X.c).to_numpy()
+        folds, columns = prepared_folds(X, y, 4)
+        for model_name in ("ols", "ridge", "forest"):
+            for family, genes, pair in (("quadratic", np.zeros(3), None),
+                                        ("rbf", np.zeros(4), None),
+                                        ("interactions", np.zeros(2), None),
+                                        ("gp", [("*", ("x", 0), ("x", 1))], feature_pair)):
+                with self.subTest(model=model_name, family=family):
+                    accounting = {"fits": 0, "failed_folds": 0, "failed_candidates": 0}
+                    score = candidate_fitness(folds, "construction", family, 1, model_name,
+                                              None, 4, accounting, pair)(genes)
+                    self.assertTrue(np.isfinite(score))
+                    self.assertEqual(accounting["fits"], 3)
 
     def test_smoke_isolated_from_outer_test_and_old_results(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -103,10 +145,14 @@ class ProtocolTests(unittest.TestCase):
             self.assertEqual(sum(row["candidate_evaluations"] for row in first), 120)
             for row in first[1:]:
                 self.assertEqual(row["fe_model_fits"], 121)
+                replayed = replay(root / "one", "synthetic", 0, "ols", row["arm"], 11, root)
+                self.assertAlmostEqual(replayed["mae"], row["mae"])
             # The locked outer labels can change reporting, never inner choices.
             splits = read_config(root / "one/splits.json")
             frame.loc[splits[0]["test"], "target"] += 1000
             frame.to_csv(root / "input.csv", index=False)
+            with self.assertRaisesRegex(ValueError, "Source data changed"):
+                replay(root / "one", "synthetic", 0, "ols", "construction", 11, root)
             second = run(config, dataset, root / "two", smoke=True, data_root=root)
             before = [item["inner_scores"] for item in map(__import__("json").loads,
                 (root / "one/definitions.jsonl").read_text().splitlines())]

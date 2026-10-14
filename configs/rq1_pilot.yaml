@@ -1,0 +1,53 @@
+{
+  "study": "rq1_pilot",
+  "outer_seeds": [
+    101
+  ],
+  "search_seeds": [
+    11,
+    23,
+    37
+  ],
+  "inner_folds": 3,
+  "learners": [
+    "ols"
+  ],
+  "arms": [
+    {
+      "name": "selection",
+      "strategy": "selection",
+      "family": "quadratic",
+      "optimizer": "GA",
+      "budget": 300
+    },
+    {
+      "name": "construction",
+      "strategy": "construction",
+      "family": "quadratic",
+      "optimizer": "GA",
+      "k_grid": [
+        0,
+        1,
+        2,
+        4,
+        8
+      ],
+      "budget": 300
+    },
+    {
+      "name": "combined",
+      "strategy": "combined",
+      "family": "quadratic",
+      "optimizer": "GA",
+      "k_grid": [
+        0,
+        1,
+        2,
+        4,
+        8
+      ],
+      "budget": 300
+    }
+  ],
+  "pilot": true
+}

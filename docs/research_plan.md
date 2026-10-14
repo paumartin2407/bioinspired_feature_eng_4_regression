@@ -423,3 +423,14 @@ Fix a reproducible hyperparameter-selection protocol. Either pre-tune each learn
 - **No free lunch across learners:** a useful feature for OLS may be redundant for a nonlinear model.
 - **Fitting-cost differences:** equal feature-candidate evaluations do not imply equal fitted-model counts or runtime.
 - **Practical interpretability:** GP node count, sparse-interaction count and quadratic weight density are different complexity notions; report them explicitly.
+
+---
+
+## 13. Locked implementation decisions before the pilot
+
+- **Combined strategy:** The mask controls which originals enter the learner directly. Constructed features may use all originals, including masked ones. Record direct originals, construction inputs and their union separately; the mask alone does not describe total input use.
+- **Capacity search:** Each adaptive arm divides its total candidate allowance across eligible searched `k` values. Construction-only `k=0` uses the same learner's pre-tuned no-FE inner-fold score without optimizer calls. Combined `k=0` searches a selection mask and consumes its allocated evaluations. Save every allocation and validation score. Fixed-`k` arms use the full allowance at one dimension, so fixed-versus-adaptive differences reflect search allocation as well as capacity.
+- **Refit:** Candidate genes or GP expressions are shared across inner folds, while preprocessing is fitted within each fold. The selected candidate is replayed after preprocessing is refitted on all development rows. Coefficients are defined in standardized coordinates and therefore acquire a different raw-input interpretation after the refit. Saved source, split and feature definitions must reproduce final transformed arrays and predictions exactly.
+- **RQ2 order:** `configs/rq2.yaml` compares four adaptive pipelines first; `configs/rq2_fixed.yaml` is a secondary matched-`k` capacity study. GP remains a pipeline comparison because its representation and search both differ.
+- **RQ4 scope:** Ridge and Random Forest parameters are pre-tuned on original development features and frozen during FE search. This tests FE with a pre-tuned fixed learner, not joint learner-and-FE optimization.
+- **Pilot:** One outer split, all five exploration datasets, three optimizer seeds and 300 candidate evaluations per arm. Inspect only completeness, failures, selected-`k` distributions and runtime before the full protocol. Pilot predictive scores must not choose methods or change final configurations.
