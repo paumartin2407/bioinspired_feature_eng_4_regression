@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+dataset/prospective/
+results/
+smoke-results/
+smoke-*/

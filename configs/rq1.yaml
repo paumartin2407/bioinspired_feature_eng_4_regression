@@ -1,0 +1,9 @@
+{
+  "study": "rq1", "outer_seeds": [101, 211, 307, 401, 503], "search_seeds": [11, 23, 37, 47, 59], "inner_folds": 3,
+  "learners": ["ols"],
+  "arms": [
+    {"name": "selection", "strategy": "selection", "family": "quadratic", "optimizer": "GA", "budget": 1000},
+    {"name": "construction", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [0, 1, 2, 4, 8], "budget": 1000},
+    {"name": "combined", "strategy": "combined", "family": "quadratic", "optimizer": "GA", "k_grid": [0, 1, 2, 4, 8], "budget": 1000}
+  ]
+}

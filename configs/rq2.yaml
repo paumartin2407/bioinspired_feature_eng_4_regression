@@ -1,0 +1,22 @@
+{
+  "study": "rq2", "outer_seeds": [101, 211, 307, 401, 503], "search_seeds": [11, 23, 37, 47, 59], "inner_folds": 3,
+  "learners": ["ols"], "references": ["polynomial_ridge"],
+  "arms": [
+    {"name": "quadratic_adaptive", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [0, 1, 2, 4, 8], "budget": 1000},
+    {"name": "rbf_adaptive", "strategy": "construction", "family": "rbf", "optimizer": "GA", "k_grid": [0, 1, 2, 4, 8], "budget": 1000},
+    {"name": "interactions_adaptive", "strategy": "construction", "family": "interactions", "optimizer": "GA", "k_grid": [0, 1, 2, 4, 8], "budget": 1000},
+    {"name": "gp_adaptive", "strategy": "construction", "family": "gp", "optimizer": "GP", "k_grid": [0, 1, 2, 4, 8], "budget": 1000},
+    {"name": "quadratic_k1", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [1], "budget": 1000},
+    {"name": "rbf_k1", "strategy": "construction", "family": "rbf", "optimizer": "GA", "k_grid": [1], "budget": 1000},
+    {"name": "interactions_k1", "strategy": "construction", "family": "interactions", "optimizer": "GA", "k_grid": [1], "budget": 1000},
+    {"name": "gp_k1", "strategy": "construction", "family": "gp", "optimizer": "GP", "k_grid": [1], "budget": 1000},
+    {"name": "quadratic_k2", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [2], "budget": 1000},
+    {"name": "rbf_k2", "strategy": "construction", "family": "rbf", "optimizer": "GA", "k_grid": [2], "budget": 1000},
+    {"name": "interactions_k2", "strategy": "construction", "family": "interactions", "optimizer": "GA", "k_grid": [2], "budget": 1000},
+    {"name": "gp_k2", "strategy": "construction", "family": "gp", "optimizer": "GP", "k_grid": [2], "budget": 1000},
+    {"name": "quadratic_k4", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [4], "budget": 1000},
+    {"name": "rbf_k4", "strategy": "construction", "family": "rbf", "optimizer": "GA", "k_grid": [4], "budget": 1000},
+    {"name": "interactions_k4", "strategy": "construction", "family": "interactions", "optimizer": "GA", "k_grid": [4], "budget": 1000},
+    {"name": "gp_k4", "strategy": "construction", "family": "gp", "optimizer": "GP", "k_grid": [4], "budget": 1000}
+  ]
+}

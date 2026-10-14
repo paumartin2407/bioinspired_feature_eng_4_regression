@@ -1,0 +1,21 @@
+{
+  "study": "rq3", "outer_seeds": [101, 211, 307, 401, 503], "search_seeds": [11, 23, 37, 47, 59], "inner_folds": 3,
+  "learners": ["ols"],
+  "arms": [
+    {"name": "quadratic_k1_ga", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [1], "budget": 1000},
+    {"name": "quadratic_k1_pso", "strategy": "construction", "family": "quadratic", "optimizer": "PSO", "k_grid": [1], "budget": 1000},
+    {"name": "quadratic_k1_es", "strategy": "construction", "family": "quadratic", "optimizer": "ES", "k_grid": [1], "budget": 1000},
+    {"name": "quadratic_k1_de", "strategy": "construction", "family": "quadratic", "optimizer": "DE", "k_grid": [1], "budget": 1000},
+    {"name": "quadratic_k1_cma", "strategy": "construction", "family": "quadratic", "optimizer": "CMA-ES", "k_grid": [1], "budget": 1000},
+    {"name": "quadratic_k2_ga", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [2], "budget": 1000},
+    {"name": "quadratic_k2_pso", "strategy": "construction", "family": "quadratic", "optimizer": "PSO", "k_grid": [2], "budget": 1000},
+    {"name": "quadratic_k2_es", "strategy": "construction", "family": "quadratic", "optimizer": "ES", "k_grid": [2], "budget": 1000},
+    {"name": "quadratic_k2_de", "strategy": "construction", "family": "quadratic", "optimizer": "DE", "k_grid": [2], "budget": 1000},
+    {"name": "quadratic_k2_cma", "strategy": "construction", "family": "quadratic", "optimizer": "CMA-ES", "k_grid": [2], "budget": 1000},
+    {"name": "quadratic_k4_ga", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [4], "budget": 1000},
+    {"name": "quadratic_k4_pso", "strategy": "construction", "family": "quadratic", "optimizer": "PSO", "k_grid": [4], "budget": 1000},
+    {"name": "quadratic_k4_es", "strategy": "construction", "family": "quadratic", "optimizer": "ES", "k_grid": [4], "budget": 1000},
+    {"name": "quadratic_k4_de", "strategy": "construction", "family": "quadratic", "optimizer": "DE", "k_grid": [4], "budget": 1000},
+    {"name": "quadratic_k4_cma", "strategy": "construction", "family": "quadratic", "optimizer": "CMA-ES", "k_grid": [4], "budget": 1000}
+  ]
+}

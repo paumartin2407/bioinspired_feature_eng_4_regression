@@ -1,0 +1,12 @@
+{
+  "study": "rq1_fixed", "outer_seeds": [101, 211, 307, 401, 503], "search_seeds": [11, 23, 37, 47, 59], "inner_folds": 3,
+  "learners": ["ols"],
+  "arms": [
+    {"name": "construction_k1", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [1], "budget": 1000},
+    {"name": "combined_k1", "strategy": "combined", "family": "quadratic", "optimizer": "GA", "k_grid": [1], "budget": 1000},
+    {"name": "construction_k2", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [2], "budget": 1000},
+    {"name": "combined_k2", "strategy": "combined", "family": "quadratic", "optimizer": "GA", "k_grid": [2], "budget": 1000},
+    {"name": "construction_k4", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [4], "budget": 1000},
+    {"name": "combined_k4", "strategy": "combined", "family": "quadratic", "optimizer": "GA", "k_grid": [4], "budget": 1000}
+  ]
+}

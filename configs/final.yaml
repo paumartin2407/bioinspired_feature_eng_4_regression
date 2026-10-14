@@ -1,0 +1,5 @@
+{
+  "study": "final", "locked": false,
+  "outer_seeds": [101, 211, 307, 401, 503], "search_seeds": [11, 23, 37, 47, 59], "inner_folds": 3,
+  "learners": [], "arms": [], "minimum_practical_mae_reduction_pct": 2.0
+}

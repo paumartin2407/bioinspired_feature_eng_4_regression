@@ -1,32 +1,40 @@
-# Regression feature engineering benchmark
+# Bio-inspired feature engineering for regression
 
-Install `requirements.txt`, then run:
+The prospective protocol is [docs/research_plan.md](docs/research_plan.md). This branch contains experiment code and configurations only; no new study has been run or interpreted. Old milestone results are excluded from this study.
 
-```powershell
-python benchmark.py --smoke --output results/equal_smoke
-python benchmark.py --output results/equal_budget
-python compare_budgets.py results/milestone1 results/equal_budget
-python probe_regularization.py results/equal_budget
-```
-
-The second command runs both full datasets with five outer splits and five optimizer seeds per split. Each split uses 80% development data and 20% held-out test data; the development portion has a fixed 75/25 training/validation split. All methods within an outer split share those rows. Every optimizer run consumes exactly 1,000 fitness evaluations, including its initial population and any partial final generation. The full run can take a long time on California Housing.
-
-Outputs include `config.json`, `splits.json`, `feature_definitions.jsonl`, `raw_results.csv`, `performance.csv`, `paired_comparisons.csv`, `ablation.csv`, `stability.csv`, `convergence.csv`, `convergence.png`, `extreme_residuals.csv`, and `feature_diagnostics.csv`. Positive MAE and RMSE differences in the paired file mean the first method is worse. Stability matches constructed features one to one and averages absolute correlations; unmatched features count as zero similarity. The old unequal-budget results remain in `results/milestone1`. Run `python replay_diagnostics.py results/milestone1` to reproduce and inspect their held-out outliers without rerunning optimization.
-
-`compare_budgets.py` writes `results/equal_budget/budget_comparison.csv` with matched old and corrected runs; a negative `delta_MAE` means the equal-budget run improved. Baselines retain zero optimizer evaluations and are included as unchanged references.
-
-`probe_regularization.py` reuses fixed saved features to compare training-only scaling plus Ridge, with and without training-derived 99.5th-percentile clipping. It tunes Ridge alpha on the inner validation rows and writes `ridge_probe.csv`. It is exploratory: the optimizers still selected these features under the original linear regression objective.
-
-Run `python -m unittest -q test_milestone1.py` for preprocessing, feature scaling, GP mutation, exact budget, decoder, test isolation, and stability checks. The notebook is an entry point to the same benchmark code. Dependency versions are pinned in `requirements.txt`; CI runs the tests and validates the notebook.
-
-## Milestone 2: controlled continuous comparison
+## Setup and data
 
 ```powershell
-python benchmark_continuous.py --smoke --budget 80 --output results/milestone2_smoke
-python benchmark_continuous.py --output results/milestone2
-python -m unittest -q test_milestone1.py test_milestone2.py
+python -m pip install -r requirements.txt
+python -m src.datasets --stage exploration
 ```
 
-The full command runs GA, PSO, ES, DE/rand/1/bin, and CMA-ES on California Housing and Diabetes: five outer splits, five optimizer seeds, and 1,000 validation-MAE evaluations per run (250 runs total). These are **controlled continuous variants**, separate from the original mixed-variable methods and GP. Every candidate is a 2-by-d matrix of coefficients in [-1, 1]. The decoder retains all training-standardized original inputs and adds `(X @ W.T) ** 2` as two features. All five methods use the same decoder, inner training/validation split, `LinearRegression` fitness, and held-out test protocol. GA, PSO, ES, and DE start populations uniformly in the bounds; CMA-ES starts with a uniformly sampled mean and draws its own Gaussian population. Each method gets a reproducible stream from its optimizer seed. Equal evaluations control search effort, while runtime is reported separately.
+The manifest at `configs/datasets.yaml` fixes seven public regression datasets: five for RQ1–RQ4 and two reserved for independent final confirmation. Existing California and Diabetes files are exploration sources; the others are fetched from UCI by ID and stored with SHA-256 checksums. The final panel is Yacht Hydrodynamics and Abalone Rings; neither has been fetched for this branch. Fetching `--stage final` should wait until the final protocol is locked. The runner never downloads data. Cite original datasets when publishing results.
 
-`results/milestone2/` contains `raw_results.csv` (test MAE, RMSE, R², maximum absolute residual, runtime, count), `performance.csv`, split-paired comparisons, per-evaluation convergence and its plot, coefficients, worst five test residuals per run, synthetic-feature magnitudes, one-to-one matched stability, split indices, and a versioned configuration. The inner training data alone determines preprocessing and the downstream fit. This experiment does not add clipping or regularization; those changes belong to a separately defined robustness experiment. The Milestone 1 results remain under their existing directories.
+## Checks and later experiments
+
+```powershell
+python -m unittest discover -s tests -q
+python -m src.experiments --config configs/rq1.yaml --output results/rq1_smoke --smoke
+```
+
+The smoke path uses one dataset, one outer split, one search seed, up to 120 source rows, and a reduced `k` grid with 40 optimizer evaluations per searched arm. It verifies wiring only; its metrics are not research evidence. To run a full study later, omit `--smoke` and give a fresh output directory:
+
+```powershell
+python -m src.experiments --config configs/rq1.yaml --output results/rq1
+python -m src.experiments --config configs/rq1_fixed.yaml --output results/rq1_fixed
+python -m src.experiments --config configs/rq2.yaml --output results/rq2
+python -m src.experiments --config configs/rq3.yaml --output results/rq3
+python -m src.experiments --config configs/rq4.yaml --output results/rq4
+python -m src.reporting --runs results/rq1/runs.csv --output results/rq1_summary
+```
+
+RQ4's two initial pipelines should be replaced with a development-evidence shortlist before that study. `configs/final.yaml` has no shortlisted arms and `locked: false`; the runner refuses to run it until the procedure is fixed. Final runs only select `stage: final` datasets.
+
+## Protocol contract
+
+Each dataset uses five shared 80/20 outer splits and three shuffled inner folds. Rows with missing targets are dropped; other nonnumeric or nonfinite targets are rejected. Numeric predictors receive median imputation and standard scaling; categorical predictors receive most-frequent imputation and one-hot encoding with unknown categories ignored. These operations are fitted in each inner training fold. The same candidate formula or vector is scored across all inner folds, then replayed after a full development refit. Outer-test rows are only predicted after model, representation and `k` selection. Ridge and forest parameters are pre-tuned on original development features once per outer split, then frozen for all FE arms; these tuning fits are recorded. OLS uses fixed parameters.
+
+An adaptive construction arm divides its **total** candidate budget among eligible positive `k` values, with `k=0` using the already computed no-FE inner score. Selection-only has no synthetic features. The combined arm constructs from all original inputs even when some are dropped as direct learner inputs. `runs.csv` records candidate evaluations, FE fits, shared learner-tuning fits, baseline fit, failures, runtime, chosen `k`, transformed dimension, MAE difference and percent reduction. `definitions.jsonl` contains replayable genes or GP trees and scores for every tested `k`; `splits.json` records row indices. `stability.csv` compares seed pairs within each outer split. A polynomial plus Ridge reference is included in RQ2 and is not capacity matched to the optimized families.
+
+The reporting helper averages seeds inside outer splits, then splits inside datasets, and assigns equal weight to datasets. Its bootstrap interval resamples datasets and is descriptive with a small panel. Neither the runner nor reporting tool reads previous milestone outputs or makes a final recommendation.

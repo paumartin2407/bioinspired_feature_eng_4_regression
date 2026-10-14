@@ -1,0 +1,8 @@
+{
+  "study": "rq4", "outer_seeds": [101, 211, 307, 401, 503], "search_seeds": [11, 23, 37, 47, 59], "inner_folds": 3,
+  "learners": ["ols", "ridge", "forest"],
+  "arms": [
+    {"name": "quadratic", "strategy": "construction", "family": "quadratic", "optimizer": "GA", "k_grid": [0, 1, 2, 4, 8], "budget": 1000},
+    {"name": "rbf", "strategy": "construction", "family": "rbf", "optimizer": "GA", "k_grid": [0, 1, 2, 4, 8], "budget": 1000}
+  ]
+}
