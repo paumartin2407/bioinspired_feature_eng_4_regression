@@ -1,6 +1,6 @@
 # RQ1 pilot health check
 
-The reduced RQ1 pilot ran on the five prespecified exploration datasets with one outer split, three search seeds and 300 optimizer evaluations per FE arm. Generated artifacts are local under `results/rq1_pilot/` and are ignored by Git. No pilot predictive score was used to choose or alter a full-study configuration.
+Before the dataset scope was reduced to California Housing and Diabetes Progression, the reduced RQ1 pilot ran on five prespecified exploration datasets with one outer split, three search seeds and 300 optimizer evaluations per FE arm. These historical counts do not describe a run under the current two-dataset manifest. Generated artifacts are local under `results/rq1_pilot/` and are ignored by Git. No pilot predictive score was used to choose or alter a full-study configuration.
 
 - 50 output rows: five no-FE baselines and 45 FE runs.
 - 13,500 optimizer candidate evaluations and 40,545 FE model fits, including final refits.

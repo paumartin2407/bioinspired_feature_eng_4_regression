@@ -71,7 +71,7 @@ Treat the revised programme as a **fresh study**, not as an additional milestone
 | `benchmark.py`, `benchmark_continuous.py` | **Replace as active entry points** | Extract runner/recording utilities; create one new experimental runner with RQ configuration files. |
 | `test_milestone1.py`, `test_milestone2.py` | **Harvest and replace** | Move reusable tests to `tests/`; add variable-\(k\), decoding, budgeting, model, fold-isolation and replay tests. Remove tests tied solely to retired scripts. |
 | `.github/workflows/tests.yml`, `requirements.txt` | **Keep/adapt** | Switch CI to new tests and smoke experiments; keep a reproducible environment. |
-| `dataset/` | **Reuse source files if suitable** | Reassess dataset eligibility and define additional datasets; do not reuse old output-driven choices. |
+| `dataset/` | **Reuse source files** | Use California Housing and Diabetes Progression only; do not reuse old output-driven choices. |
 | `results/milestone1/`, `results/equal_budget/`, `results/milestone2/`, all smoke/legacy result directories | **Discard from refocused repository** | Delete obsolete result artefacts from the new active tree. Generate only new `results/rq*/` outputs. |
 | `compare_budgets.py`, `refresh_stability.py`, `replay_diagnostics.py`, `probe_regularization.py` | **Remove if not needed** | Their old-result comparison workflows are out of scope. Salvage generic functions only if required in the new design. |
 | `comparison_design.md` and prior research narratives | **Replace** | This document is the new single research specification. |
@@ -96,7 +96,7 @@ configs/
   rq2.yaml
   rq3.yaml
   rq4.yaml
-  final.yaml
+  final.yaml              # disabled without an independent evaluation panel
 tests/
 docs/
   research_plan.md
@@ -105,7 +105,6 @@ results/
   rq2/
   rq3/
   rq4/
-  final/
 ```
 
 These names are recommendations, not a requirement to reorganize every source file immediately. Keep the implementation small and testable.
@@ -173,8 +172,8 @@ The following applies to *all* four RQs.
 
 ### 4.1 Datasets and evaluation data
 
-- Define a **new prospective dataset panel** before running the new study. The current California Housing and Diabetes source files can remain if suitable, but **none of the older saved experiments or selected configurations enters the new study**. Because past test observations have already been examined, the strongest confirmatory claims require additional previously unexamined datasets or a genuinely untouched evaluation collection; merely reusing a different random split of the same inspected dataset is weaker.
-- Include multiple public regression datasets spanning small/large sample sizes, varying predictor counts, and different expected nonlinearities. Aim for at least **5–7 total datasets**, subject to feasibility and licensing. Choose and document them without consulting feature-engineering method scores.
+- Use only **California Housing and Diabetes Progression** for RQ1–RQ4. None of the older saved experiments or selected configurations enters the new study. Past test observations from these sources have already been examined, so new splits of them cannot provide independent confirmation.
+- Treat findings as specific to these two datasets; do not infer broad performance across regression problems from this panel.
 - Define dataset inclusion criteria, target handling, missing-value policies, train/test partition rules and random seeds **before** inspecting new results.
 - Keep the outer-test rows isolated during all transformation/optimizer/learner selection. All experiments within a dataset share the same locked outer splits for paired comparisons.
 
@@ -210,9 +209,9 @@ Only **inner-development evidence** can choose a strategy, family, optimizer, hy
 - **Matched data:** same datasets/splits and comparable seed schedules for paired experiments.
 - **Matched evaluation objective:** same learner, metric and validation folds when isolating strategy, representation or optimizer.
 - **Matched resource accounting:** report *total* optimizer evaluations across all tested \(k\), inner folds, model hyperparameter candidates and multistage procedures, as well as wall-clock time. A candidate evaluated on 3 folds should count as one candidate and **three fitted models**; clarify any additional fits.
-- **Seed variability:** use at least 5 stochastic search seeds for definitive configurations, but average seeds within outer split before constructing paired dataset-level contrasts; avoid treating all seeds as independent data samples.
+- **Seed variability:** use at least 5 stochastic search seeds for full configurations, but average seeds within outer split before constructing paired dataset-level contrasts; avoid treating all seeds as independent data samples.
 - **Avoid trivial baselines:** include each learner's own no-FE baseline, regularized original-feature baselines where relevant, and deterministic representation-specific alternatives such as polynomial + Ridge if informative.
-- **Selection bias:** RQ1–RQ4 exploration and final pipeline choice cannot be validated with the same repeatedly examined test data. Use an independent, locked final evaluation set/panel for the concluding recommendation.
+- **Selection bias:** RQ1–RQ4 exploration and pipeline choice share two previously examined datasets. Report their comparisons as exploratory; no independent final evaluation is available under this scope.
 
 ---
 
@@ -319,20 +318,20 @@ Fix a reproducible hyperparameter-selection protocol. Either pre-tune each learn
 
 ---
 
-## 9. Final stage — Recommend the best-supported combination
+## 9. Synthesis within the two-dataset scope
 
 **Goal:** Identify an effective and reproducible choice of **strategy + representation + optimizer + selected \(k\) + learner**, not merely report the smallest MAE from all attempted runs.
 
-### Selection and independent confirmation
+### Selection and reporting
 
-1. Before running the final experiment, shortlist **at most 2–3 practical pipelines** using development-only evidence from RQ1–RQ4. Always include the applicable **no-FE baseline**.
+1. Shortlist **at most 2–3 practical pipelines** using development-only evidence from RQ1–RQ4. Always include the applicable **no-FE baseline**.
 2. Fix their entire procedures: preprocessing, \(k\)-selection grids, feature family, optimizer settings, learner tuning policy, evaluation budget, stopping conditions and rules for ties/failures.
-3. Evaluate the locked procedures on **fresh, untouched datasets or genuinely held-out final data** not used to design, compare or tune the candidates. Do not select by these final test outcomes and then report the winning score as though it were unbiased.
+3. Summarize the prespecified comparisons on California Housing and Diabetes Progression. Since both datasets have been examined before and the same panel informs the shortlist, these results are exploratory, not independent confirmation.
 4. Primary selection metric: **dataset-level percentage reduction in MAE** versus that learner's baseline, aggregated with equal dataset weight; supplement with uncertainty, fraction of datasets helped, RMSE, tail residuals, actual selected \(k\), runtime and transformation complexity.
 5. Require **a meaningful and stable improvement** (predeclare a minimum practical effect); in a practical tie choose fewer features, lower training/prediction overhead and better stability. If no combination consistently improves on no FE, explicitly recommend **no feature engineering** in the relevant setting.
 6. If data do not support a single universal pipeline, report **conditional recommendations** (e.g. by learner family or dataset characteristics), with their limitations and verification requirements.
 
-**Final output:** a reproducible comparison answering RQ1–RQ4 and a transparent, evidence-supported recommendation. It is acceptable—and scientifically stronger—to conclude that no universal winner exists.
+**Final output:** a reproducible comparison answering RQ1–RQ4 and a transparent, dataset-specific recommendation with the lack of independent confirmation stated. It is acceptable—and scientifically stronger—to conclude that no universal winner exists.
 
 ---
 
@@ -345,9 +344,9 @@ Fix a reproducible hyperparameter-selection protocol. Either pre-tune each learn
 | **RQ2-B** | Symbolic GP vs fixed-form pipelines | Construction-only, OLS, folds, total budget | GP evolves \(k\) trees; same \(k\) grid where feasible | End-to-end pipeline comparison, not optimizer isolation |
 | **RQ3** | GA / PSO / ES / DE / CMA-ES | Continuous representation, construction-only, OLS, folds | **Fixed common \(k\)** primary; equal-budget adaptive-\(k\) secondary | Optimizer/search mechanism effect |
 | **RQ4** | OLS / Ridge / Random Forest | Small shortlist, matched folds and baseline | Re-select \(k\) per learner using inner data | Model specificity/generalizability |
-| **Final** | Locked shortlisted procedures | Prespecified independent evaluation | All \(k\)-selection remains within development folds | Confirmed practical recommendation |
+| **Synthesis** | Shortlisted procedures | California Housing and Diabetes Progression | All \(k\)-selection remains within development folds | Exploratory, dataset-specific recommendation |
 
-**Compute discipline:** begin with unit/smoke tests, a small pilot (e.g. 300 candidate evaluations, 3 optimizer seeds), then run the agreed final configuration (e.g. 1,000 evaluations, 5 optimizer seeds). For adaptive-\(k\), set a **total budget across values of \(k\)** before running. Never hide a fivefold increase in compute by calling each \(k\) run “equal-budget.”
+**Compute discipline:** begin with unit/smoke tests, a small pilot (e.g. 300 candidate evaluations, 3 optimizer seeds), then run the agreed full-study configuration (e.g. 1,000 evaluations, 5 optimizer seeds). For adaptive-\(k\), set a **total budget across values of \(k\)** before running. Never hide a fivefold increase in compute by calling each \(k\) run “equal-budget.”
 
 ---
 
@@ -361,7 +360,7 @@ Fix a reproducible hyperparameter-selection protocol. Either pre-tune each learn
 - [ ] Make `k` a parameter of every construction decoder, GP feature generator, configuration and saved result. Remove any unconditional hardcoded two-feature assumption.
 - [ ] Define an explicit `k` grid and total capacity-selection budget; create `k=0` no-construction behavior.
 - [ ] Add tests for \(k=0,1,2,4\), output dimensions, selected original features, construction replay, budget counts across \(k\), leakage, fold-local preprocessing and model-specific tuning.
-- [ ] Predefine new datasets, prospective splits, baseline policy and final untouched confirmation data before comparing methods.
+- [ ] Fix the two-dataset manifest, prospective splits and baseline policy before comparing methods; record that independent confirmation is unavailable.
 - [ ] Update CI to execute only current tests and short smoke experiments.
 
 **Exit criterion:** Running one configuration produces an unmodified baseline and all three FE strategy outputs, without reading old results and without revealing outer-test data to any selection routine.
@@ -400,14 +399,14 @@ Fix a reproducible hyperparameter-selection protocol. Either pre-tune each learn
 
 **Exit criterion:** Determine whether and where feature engineering benefits different regression learning algorithms.
 
-### Phase 5 — Independent confirmation and final selection
+### Phase 5 — Two-dataset synthesis
 
 - [ ] Lock candidate shortlist and all tuning/capacity-selection rules.
-- [ ] Run a final study on untouched evaluation data.
+- [ ] Summarize the prespecified comparisons on California Housing and Diabetes Progression without calling them independent confirmation.
 - [ ] Report selected \(k\) distributions, paired relative MAE benefits, uncertainty, failure rates and compute.
 - [ ] Recommend a pipeline only where supported, including “none” when appropriate.
 
-**Exit criterion:** The final conclusions are reproducible without old result artefacts, and no final test set has been used to adjust the candidate pipelines.
+**Exit criterion:** The two-dataset conclusions are reproducible without old result artefacts and state their exploratory scope.
 
 ---
 
@@ -416,7 +415,7 @@ Fix a reproducible hyperparameter-selection protocol. Either pre-tune each learn
 - **Capacity bias:** families differ in expressivity even at equal \(k\). Nominal feature-count matching is not complete model-complexity matching.
 - **Adaptive search-cost bias:** varying \(k\) introduces another hyperparameter-selection problem; compare both total compute and performance.
 - **GP representation/search confounding:** GP and parametric GA differ in both feature language and operators; GP comparisons belong at pipeline level.
-- **Outer-test reuse:** old observations have influenced discussion; new unbiased claims need genuinely unexamined confirmation data.
+- **Outer-test reuse:** old observations from both datasets have influenced discussion; these data cannot support an independent confirmation claim.
 - **Nested hyperparameters:** feature selection, \(k\), optimizer settings and learner tuning must not all be optimized against the final test.
 - **Small datasets and large \(k\):** avoid producing too many constructed features for the sample size; define caps before experiments.
 - **Numerical extrapolation:** quadratic, RBF and GP constructions may behave badly out of distribution; monitor error tails without post-hoc test-driven fixes.
@@ -433,4 +432,4 @@ Fix a reproducible hyperparameter-selection protocol. Either pre-tune each learn
 - **Refit:** Candidate genes or GP expressions are shared across inner folds, while preprocessing is fitted within each fold. The selected candidate is replayed after preprocessing is refitted on all development rows. Coefficients are defined in standardized coordinates and therefore acquire a different raw-input interpretation after the refit. Saved source, split and feature definitions must reproduce final transformed arrays and predictions exactly.
 - **RQ2 order:** `configs/rq2.yaml` compares four adaptive pipelines first; `configs/rq2_fixed.yaml` is a secondary matched-`k` capacity study. GP remains a pipeline comparison because its representation and search both differ.
 - **RQ4 scope:** Ridge and Random Forest parameters are pre-tuned on original development features and frozen during FE search. This tests FE with a pre-tuned fixed learner, not joint learner-and-FE optimization.
-- **Pilot:** One outer split, all five exploration datasets, three optimizer seeds and 300 candidate evaluations per arm. Inspect only completeness, failures, selected-`k` distributions and runtime before the full protocol. Pilot predictive scores must not choose methods or change final configurations.
+- **Pilot:** The earlier five-dataset pilot used one outer split, three optimizer seeds and 300 candidate evaluations per arm. Its health record is historical; the current manifest contains only California Housing and Diabetes Progression. Pilot predictive scores must not choose methods or change full-study configurations.

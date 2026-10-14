@@ -1,11 +1,6 @@
 {
   "datasets": [
     {"name": "California Housing", "stage": "exploration", "path": "dataset/California.csv", "target": "MedHouseVal", "source": "existing source file"},
-    {"name": "Diabetes Progression", "stage": "exploration", "path": "dataset/Diabetes.csv", "target": "target", "source": "existing source file"},
-    {"name": "Airfoil Self-Noise", "stage": "exploration", "path": "dataset/prospective/airfoil.csv", "target": "target", "uci_id": 291, "source_url": "https://archive.ics.uci.edu/dataset/291/airfoil+self-noise"},
-    {"name": "Concrete Strength", "stage": "exploration", "path": "dataset/prospective/concrete.csv", "target": "target", "uci_id": 165, "source_url": "https://archive.ics.uci.edu/dataset/165/concrete+compressive+strength"},
-    {"name": "Energy Efficiency Heating", "stage": "exploration", "path": "dataset/prospective/energy_heating.csv", "target": "target", "uci_id": 242, "target_index": 0, "source_url": "https://archive.ics.uci.edu/dataset/242/energy+efficiency"},
-    {"name": "Yacht Hydrodynamics", "stage": "final", "path": "dataset/prospective/yacht.csv", "target": "target", "uci_id": 243, "source_url": "https://archive.ics.uci.edu/dataset/243/yacht+hydrodynamics"},
-    {"name": "Abalone Rings", "stage": "final", "path": "dataset/prospective/abalone.csv", "target": "target", "uci_id": 1, "source_url": "https://archive.ics.uci.edu/dataset/1/abalone"}
+    {"name": "Diabetes Progression", "stage": "exploration", "path": "dataset/Diabetes.csv", "target": "target", "source": "existing source file"}
   ]
 }

@@ -6,10 +6,9 @@ The prospective protocol is [docs/research_plan.md](docs/research_plan.md). This
 
 ```powershell
 python -m pip install -r requirements.txt
-python -m src.datasets --stage exploration
 ```
 
-The manifest at `configs/datasets.yaml` fixes seven public regression datasets: five for RQ1–RQ4 and two reserved for independent final confirmation. Existing California and Diabetes files are exploration sources; the others are fetched from UCI by ID and stored with SHA-256 checksums. The final panel is Yacht Hydrodynamics and Abalone Rings; neither has been fetched for this branch. Fetching `--stage final` should wait until the final protocol is locked. The runner never downloads data. Cite original datasets when publishing results.
+The manifest at `configs/datasets.yaml` contains only California Housing and Diabetes Progression, using the existing source files. The runner never downloads data. Both datasets have been examined before, so results from this two-dataset study are exploratory and cannot serve as independent confirmation. Cite the original datasets when publishing results.
 
 ## Checks and later experiments
 
@@ -30,7 +29,7 @@ python -m src.experiments --config configs/rq4.yaml --output results/rq4
 python -m src.reporting --runs results/rq1/runs.csv --output results/rq1_summary
 ```
 
-RQ4's two initial pipelines should be replaced with a development-evidence shortlist before that study. `configs/final.yaml` has no shortlisted arms and `locked: false`; the runner refuses to run it until the procedure is fixed. Final runs only select `stage: final` datasets.
+RQ4's two initial pipelines should be replaced with a development-evidence shortlist before that study. `configs/final.yaml` remains disabled and the manifest has no final-stage datasets; no independent confirmation run is available under this two-dataset scope.
 
 `configs/rq2.yaml` is the primary adaptive-`k` pipeline comparison. `configs/rq2_fixed.yaml` is the secondary capacity check at matched `k=1,2,4`. GP changes both feature language and search mechanism, so its comparison is at pipeline level. The fixed-`k` arms spend 1,000 evaluations at one dimension; adaptive arms divide 1,000 evaluations among eligible searched `k` values. Their difference cannot be interpreted as a feature-count effect alone.
 
@@ -52,6 +51,6 @@ For quadratic features, an original input counts as used in construction when an
 
 To verify a saved FE run exactly, use `python -m src.replay --output results/rq1 --dataset "California Housing" --split 0 --learner ols --arm construction --seed 11`. Replay verifies the source checksum, refits preprocessing and the learner on development rows, and compares development features, test features, predictions and MAE with saved hashes and metrics.
 
-The reduced RQ1 pilot uses one outer split, all five exploration datasets, 300 evaluations per arm and three search seeds. Run `python -m src.experiments --config configs/rq1_pilot.yaml --output results/rq1_pilot`, then `python -m src.pilot_check results/rq1_pilot`. The checker reports only completeness, numerical failures, selected-`k` counts and runtime. [Pilot readiness](docs/pilot_readiness.md) records the health check without predictive comparisons. Pilot predictive scores must not select or alter the full-study configurations.
+The earlier reduced RQ1 pilot used five datasets; [pilot readiness](docs/pilot_readiness.md) preserves its health check as historical diagnostics. With the current manifest, `configs/rq1_pilot.yaml` selects only California Housing and Diabetes Progression. The checker reports only completeness, numerical failures, selected-`k` counts and runtime. Pilot predictive scores must not select or alter the full-study configurations.
 
 The reporting helper averages seeds inside outer splits, then splits inside datasets, and assigns equal weight to datasets. Its bootstrap interval resamples datasets and is descriptive with a small panel. Neither the runner nor reporting tool reads previous milestone outputs or makes a final recommendation.
