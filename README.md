@@ -40,6 +40,16 @@ Each dataset uses five shared 80/20 outer splits and three shuffled inner folds.
 
 An adaptive construction-only arm divides its **total** candidate budget among eligible positive `k` values, with `k=0` using the same learner's pre-tuned no-FE inner score. Selection-only has no synthetic features. For the combined arm, `k=0` still searches a selection mask and therefore receives part of the budget. The combined arm constructs from all original inputs even when some are dropped as direct learner inputs. Its mask describes direct retention only; `selected_originals`, `construction_input_count` and `effective_original_count` distinguish direct and indirect use. `runs.csv` records candidate evaluations, FE fits, shared learner-tuning fits, baseline fit, failures, runtime, chosen `k`, transformed dimension, MAE difference and percent reduction. `definitions.jsonl` records per-`k` evaluation allocations and scores, direct and constructed input names, replayable genes or GP trees, and hashes of final features and predictions. `splits.json` records row indices. `stability.csv` compares seed pairs within each outer split. A polynomial plus Ridge reference is included in primary RQ2 and is not capacity matched to the optimized families.
 
+| Run field | Meaning |
+| --- | --- |
+| `selected_k` | Number of constructed features. |
+| `selected_originals` | Number of original features directly retained. |
+| `construction_input_count` | Number of original inputs used in constructed features. |
+| `effective_original_count` | Number of distinct original inputs used directly or indirectly. |
+| `transformed_dim` | Number of columns given to the regression model. |
+
+For quadratic features, an original input counts as used in construction when any corresponding coefficient has absolute value greater than `1e-12`. With continuous weights, nearly every nonzero coefficient may meet this threshold. Thus `effective_original_count` measures algebraic input use, not feature importance or effective sparsity.
+
 To verify a saved FE run exactly, use `python -m src.replay --output results/rq1 --dataset "California Housing" --split 0 --learner ols --arm construction --seed 11`. Replay verifies the source checksum, refits preprocessing and the learner on development rows, and compares development features, test features, predictions and MAE with saved hashes and metrics.
 
 The reduced RQ1 pilot uses one outer split, all five exploration datasets, 300 evaluations per arm and three search seeds. Run `python -m src.experiments --config configs/rq1_pilot.yaml --output results/rq1_pilot`, then `python -m src.pilot_check results/rq1_pilot`. The checker reports only completeness, numerical failures, selected-`k` counts and runtime. [Pilot readiness](docs/pilot_readiness.md) records the health check without predictive comparisons. Pilot predictive scores must not select or alter the full-study configurations.

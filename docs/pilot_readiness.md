@@ -14,4 +14,4 @@ The reduced RQ1 pilot ran on the five prespecified exploration datasets with one
 | Construction | `1`: 2, `4`: 4, `8`: 9 | 11.1 s |
 | Combined | `1`: 2, `2`: 3, `4`: 3, `8`: 7 | 7.3 s |
 
-These are workflow diagnostics only. The full RQ1 config, candidate grid and budget remain unchanged; the pilot does not support a feature-engineering recommendation.
+These are workflow diagnostics only. Frequent selection of `k=8` does not justify expanding the candidate grid. The full RQ1 config, candidate grid and budget remain unchanged; the pilot does not support a feature-engineering recommendation.
