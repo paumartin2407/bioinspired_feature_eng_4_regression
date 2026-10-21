@@ -3,8 +3,10 @@
 import argparse
 import hashlib
 import json
+import os
 import platform
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -101,7 +103,8 @@ def matched_stability(first, second):
 
 
 def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter,
-            seed, baseline_inner, baseline_test_mae, smoke=False):
+            seed, baseline_inner, baseline_test_mae, smoke=False, resume=None,
+            checkpoint=None, progress=None):
     start = time.perf_counter()
     strategy, family = arm["strategy"], arm.get("family", "quadratic")
     ks = eligible_ks(arm, len(dev), len(columns))
@@ -109,15 +112,30 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
         ks = [1] if strategy == "combined" and 1 in ks else ks[:2]
     budget = 40 if smoke else arm.get("budget", 1000)
     allocation = allocated_budgets(ks, budget, strategy)
-    scores, candidates, traces = {}, {}, []
-    counts = {"fits": 0, "failed_folds": 0, "failed_candidates": 0}
-    evaluations = 0
+    scores = {int(k): v for k, v in resume["scores"].items()} if resume else {}
+    candidates = {int(k): v for k, v in resume["candidates"].items()} if resume else {}
+    traces = resume["traces"] if resume else []
+    counts = resume["counts"] if resume else {"fits": 0, "failed_folds": 0, "failed_candidates": 0}
+    evaluations = resume["evaluations"] if resume else 0
+    prior_seconds = resume["elapsed_seconds"] if resume else 0.0
     for k in ks:
+        if k in scores:
+            continue
         if strategy == "construction" and k == 0:
             scores[k], candidates[k] = baseline_inner, []
             continue
         objective = candidate_fitness(folds, strategy, family, k, model_name, parameter, seed, counts,
                                       feature_pair if family == "gp" else None)
+        if progress is not None:
+            original_objective = objective
+            current_count = 0
+            def objective(genes):
+                nonlocal current_count
+                score = original_objective(genes)
+                current_count += 1
+                if current_count % 25 == 0:
+                    progress(evaluations + current_count, k)
+                return score
         if family == "gp":
             candidate, score, spent, history = optimize_gp(objective, len(columns), k, seed + 1009 * k,
                                                             allocation[k])
@@ -133,6 +151,13 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
         traces.extend({"k": k, "evaluation": count, "best_inner_mae": best,
                        "global_evaluation": offset + count,
                        "global_best_inner_mae": min(previous_best, best)} for count, best in history)
+        if checkpoint is not None:
+            checkpoint({"kind": "partial", "scores": {str(key): value for key, value in scores.items()},
+                        "candidates": {str(key): _jsonable(value) for key, value in candidates.items()},
+                        "traces": traces, "counts": counts, "evaluations": evaluations,
+                        "elapsed_seconds": prior_seconds + time.perf_counter() - start})
+        if progress is not None:
+            progress(evaluations, k)
     best_score = min(scores.values())
     tolerance = arm.get("k_tolerance", 1e-4)
     selected_k = min(k for k in ks if scores[k] <= best_score + tolerance)
@@ -170,7 +195,7 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
                    "transformed_dim": train_features.shape[1], "candidate_evaluations": evaluations,
                    "fe_model_fits": counts["fits"], "failed_folds": counts["failed_folds"],
                    "failed_candidates": counts["failed_candidates"], "outer_failure": outer_failure,
-                   "runtime_seconds": time.perf_counter() - start, "fallback": fallback,
+                   "runtime_seconds": prior_seconds + time.perf_counter() - start, "fallback": fallback,
                    "delta_mae": report["mae"] - baseline_test_mae,
                    "mae_reduction_pct": 100 * (baseline_test_mae - report["mae"]) / baseline_test_mae
                    if baseline_test_mae else float("nan")})
@@ -241,6 +266,39 @@ def _jsonable(value):
     return value
 
 
+def _atomic_text(path, value):
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(value, encoding="utf-8")
+    os.replace(temporary, path)
+
+
+def _save_tables(output, rows, definitions, traces, splits, stability_rows):
+    _atomic_text(output / "splits.json", json.dumps(splits, indent=2))
+    _atomic_text(output / "definitions.jsonl", "".join(json.dumps(item) + "\n" for item in definitions))
+    for name, frame in (
+        ("runs.csv", pd.DataFrame(rows)),
+        ("convergence.csv", pd.DataFrame(traces, columns=["dataset", "split", "outer_seed",
+            "search_seed", "learner", "arm", "k", "evaluation", "best_inner_mae",
+            "global_evaluation", "global_best_inner_mae"])),
+        ("stability.csv", pd.DataFrame(stability_rows, columns=["dataset", "split", "learner",
+            "arm", "seed_a", "seed_b", "selection_jaccard", "constructed_similarity"])),
+    ):
+        temporary = output / (name + ".tmp")
+        frame.to_csv(temporary, index=False)
+        os.replace(temporary, output / name)
+
+
+def _saved_signature(definition, arm, dev_matrix):
+    candidate = definition["candidate"]
+    selected = set(definition["direct_originals"])
+    if definition["fallback"]:
+        constructed = dev_matrix[:, :0]
+    else:
+        features, _ = _apply_pair(dev_matrix, dev_matrix, arm, candidate, definition["k"])
+        constructed = features[:, len(selected):]
+    return {"selected": selected, "constructed": constructed}
+
+
 def run(config, datasets, output, smoke=False, data_root=ROOT):
     if config["study"] == "final" and not config.get("locked", False):
         raise ValueError("Lock the final shortlist and full protocol before running final evaluation")
@@ -249,14 +307,12 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
     if not config["arms"]:
         raise ValueError("Protocol needs at least one FE arm")
     output = Path(output)
-    if output.exists() and any(output.iterdir()):
-        raise FileExistsError(f"Refusing to overwrite existing results in {output}")
     selected = [item for item in datasets if item["stage"] == ("final" if config["study"] == "final" else "exploration")]
     if smoke:
         selected = selected[:1]
     if not selected:
         raise ValueError("No datasets for this study stage")
-    rows, definitions, traces, splits, stability_rows, source_hashes = [], [], [], [], [], {}
+    source_hashes = {}
     for dataset in selected:
         source_path = Path(data_root) / dataset["path"]
         digest = hashlib.sha256(source_path.read_bytes()).hexdigest()
@@ -264,6 +320,61 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
         if checksum_path.exists() and checksum_path.read_text(encoding="ascii").strip() != digest:
             raise ValueError(f"Source checksum mismatch: {source_path}")
         source_hashes[dataset["name"]] = digest
+    protocol = {"config": config, "datasets": selected, "smoke": smoke,
+                "smoke_row_cap": 120 if smoke else None, "source_sha256": source_hashes,
+                "versions": {"python": platform.python_version(), "numpy": np.__version__,
+                             "pandas": pd.__version__, "sklearn": sklearn.__version__}}
+    progress_path = output / "progress.json"
+    if output.exists() and any(output.iterdir()):
+        if not progress_path.exists() or not (output / "checkpoints").is_dir():
+            raise FileExistsError(f"Refusing to overwrite existing results in {output}")
+        previous = json.loads((output / "protocol.json").read_text(encoding="utf-8"))
+        last_progress = json.loads(progress_path.read_text(encoding="utf-8"))
+        if last_progress["status"] == "complete":
+            raise FileExistsError(f"Refusing to overwrite completed results in {output}")
+        if previous != protocol:
+            raise ValueError(f"Cannot resume changed protocol in {output}")
+        previous_seconds = last_progress["active_seconds"]
+        started_at = last_progress["started_at"]
+        print(f"Resuming checkpoints in {output}", flush=True)
+    else:
+        output.mkdir(parents=True, exist_ok=True)
+        (output / "checkpoints").mkdir()
+        _atomic_text(output / "protocol.json", json.dumps(protocol, indent=2))
+        previous_seconds = 0.0
+        started_at = datetime.now(timezone.utc).isoformat()
+    session_start = time.perf_counter()
+    total_evaluations = (len(selected) * (1 if smoke else len(config["outer_seeds"])) *
+                         len(config["learners"]) * (1 if smoke else len(config["search_seeds"])) *
+                         sum(40 if smoke else arm.get("budget", 1000) for arm in config["arms"]))
+    rows, definitions, traces, splits, stability_rows = [], [], [], [], []
+
+    def save_progress(count, active, status="running"):
+        active_seconds = previous_seconds + time.perf_counter() - session_start
+        state = {"status": status, "started_at": started_at,
+                 "updated_at": datetime.now(timezone.utc).isoformat(),
+                 "active_seconds": active_seconds, "completed_candidate_evaluations": count,
+                 "total_candidate_evaluations": total_evaluations, "active": active,
+                 "completed_result_rows": len(rows)}
+        _atomic_text(progress_path, json.dumps(state, indent=2))
+        print(f"Progress {count}/{total_evaluations} evaluations; {active}", flush=True)
+
+    def checkpoint_path(label):
+        return output / "checkpoints" / (label + ".json")
+
+    def save_checkpoint(path, value):
+        _atomic_text(path, json.dumps(value))
+
+    def snapshot():
+        _save_tables(output, rows, definitions, traces, splits, stability_rows)
+
+    saved_count = 0
+    for path in (output / "checkpoints").glob("arm-*.json"):
+        saved = json.loads(path.read_text(encoding="utf-8"))
+        saved_count += (saved["report"]["candidate_evaluations"] if saved["kind"] == "complete"
+                        else saved["evaluations"])
+    save_progress(saved_count, "resuming" if saved_count else "starting")
+    for dataset_index, dataset in enumerate(selected):
         X, y = load_dataset(dataset, data_root)
         if smoke:
             X, y = X.iloc[:min(120, len(X))], y[:min(120, len(y))]
@@ -280,35 +391,63 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
             dev_matrix = transformed(preprocessor, dev, columns).to_numpy()
             test_matrix = transformed(preprocessor, test, columns).to_numpy()
             if "polynomial_ridge" in config.get("references", []):
-                reference = polynomial_reference(folds, dev_matrix, test_matrix, y_dev, y_test, outer_seed)
-                reference.update({"dataset": dataset["name"], "split": split_number,
-                                  "outer_seed": outer_seed, "search_seed": None})
+                path = checkpoint_path(f"reference-{dataset_index}-{split_number}")
+                if path.exists():
+                    reference = json.loads(path.read_text(encoding="utf-8"))
+                else:
+                    reference = polynomial_reference(folds, dev_matrix, test_matrix, y_dev, y_test, outer_seed)
+                    reference.update({"dataset": dataset["name"], "split": split_number,
+                                      "outer_seed": outer_seed, "search_seed": None})
+                    save_checkpoint(path, reference)
                 rows.append(reference)
-            for model_name in config["learners"]:
-                parameter, tune_fits, tune_scores = choose_learner(model_name, folds, outer_seed)
-                baseline_inner = min(tune_scores)
-                baseline_start = time.perf_counter()
-                baseline_model = learner(model_name, parameter, outer_seed).fit(dev_matrix, y_dev)
-                baseline_report = metrics(y_test, baseline_model.predict(test_matrix))
-                baseline_report.update({"dataset": dataset["name"], "split": split_number,
-                                        "outer_seed": outer_seed, "search_seed": None, "arm": "no_fe",
-                                        "strategy": "none", "family": "none", "optimizer": "none",
-                                        "learner": model_name, "learner_parameter": parameter,
-                                        "selected_k": 0, "selected_originals": len(columns),
-                                        "transformed_dim": len(columns), "candidate_evaluations": 0,
-                                        "fe_model_fits": 0, "tuning_model_fits": tune_fits,
-                                        "baseline_model_fits": 1, "failed_folds": 0,
-                                        "failed_candidates": 0, "outer_failure": False,
-                                        "runtime_seconds": time.perf_counter() - baseline_start,
-                                        "delta_mae": 0.0, "mae_reduction_pct": 0.0,
-                                        "fallback": False})
+                snapshot()
+            for model_index, model_name in enumerate(config["learners"]):
+                path = checkpoint_path(f"baseline-{dataset_index}-{split_number}-{model_index}")
+                if path.exists():
+                    saved = json.loads(path.read_text(encoding="utf-8"))
+                    parameter, baseline_inner, baseline_report = saved["parameter"], saved["inner"], saved["report"]
+                    tune_fits = baseline_report["tuning_model_fits"]
+                else:
+                    parameter, tune_fits, tune_scores = choose_learner(model_name, folds, outer_seed)
+                    baseline_inner = min(tune_scores)
+                    baseline_start = time.perf_counter()
+                    baseline_model = learner(model_name, parameter, outer_seed).fit(dev_matrix, y_dev)
+                    baseline_report = metrics(y_test, baseline_model.predict(test_matrix))
+                    baseline_report.update({"dataset": dataset["name"], "split": split_number,
+                                            "outer_seed": outer_seed, "search_seed": None, "arm": "no_fe",
+                                            "strategy": "none", "family": "none", "optimizer": "none",
+                                            "learner": model_name, "learner_parameter": parameter,
+                                            "selected_k": 0, "selected_originals": len(columns),
+                                            "transformed_dim": len(columns), "candidate_evaluations": 0,
+                                            "fe_model_fits": 0, "tuning_model_fits": tune_fits,
+                                            "baseline_model_fits": 1, "failed_folds": 0,
+                                            "failed_candidates": 0, "outer_failure": False,
+                                            "runtime_seconds": time.perf_counter() - baseline_start,
+                                            "delta_mae": 0.0, "mae_reduction_pct": 0.0,
+                                            "fallback": False})
+                    save_checkpoint(path, {"parameter": parameter, "inner": baseline_inner,
+                                           "report": baseline_report})
                 rows.append(baseline_report)
+                snapshot()
                 signatures = {}
-                for search_seed in config["search_seeds"][:1] if smoke else config["search_seeds"]:
-                    for arm in config["arms"]:
-                        report, definition, history, signature = run_arm(
-                            arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter,
-                            search_seed, baseline_inner, baseline_report["mae"], smoke)
+                for seed_index, search_seed in enumerate(config["search_seeds"][:1] if smoke else config["search_seeds"]):
+                    for arm_index, arm in enumerate(config["arms"]):
+                        path = checkpoint_path(f"arm-{dataset_index}-{split_number}-{model_index}-{seed_index}-{arm_index}")
+                        saved = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+                        if saved and saved["kind"] == "complete":
+                            report, definition, history = saved["report"], saved["definition"], saved["history"]
+                            signature = _saved_signature(definition, arm, dev_matrix)
+                        else:
+                            base_count = sum(row["candidate_evaluations"] for row in rows)
+                            active = f"{dataset['name']} split={split_number} learner={model_name} seed={search_seed} arm={arm['name']}"
+                            def arm_progress(count, k):
+                                save_progress(base_count + count, f"{active} k={k}")
+                            report, definition, history, signature = run_arm(
+                                arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter,
+                                search_seed, baseline_inner, baseline_report["mae"], smoke,
+                                resume=saved if saved else None,
+                                checkpoint=lambda state: save_checkpoint(path, state),
+                                progress=arm_progress)
                         key = {"dataset": dataset["name"], "split": split_number,
                                "outer_seed": outer_seed, "search_seed": search_seed}
                         report.update(key)
@@ -319,6 +458,11 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
                         signatures.setdefault(arm["name"], []).append((search_seed, signature))
                         traces.extend({**key, "learner": model_name, "arm": arm["name"], **point}
                                       for point in history)
+                        if not saved or saved["kind"] != "complete":
+                            save_checkpoint(path, {"kind": "complete", "report": report,
+                                                   "definition": definitions[-1], "history": history})
+                            snapshot()
+                            save_progress(sum(row["candidate_evaluations"] for row in rows), active)
                 for arm_name, items in signatures.items():
                     for left in range(len(items)):
                         for right in range(left + 1, len(items)):
@@ -328,20 +472,9 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
                                                    "seed_a": items[left][0], "seed_b": items[right][0],
                                                    "selection_jaccard": selection_score,
                                                    "constructed_similarity": construction_score})
-    output.mkdir(parents=True, exist_ok=True)
-    (output / "protocol.json").write_text(json.dumps({"config": config, "datasets": selected,
-        "smoke": smoke, "smoke_row_cap": 120 if smoke else None,
-        "source_sha256": source_hashes,
-        "versions": {"python": platform.python_version(), "numpy": np.__version__,
-                     "pandas": pd.__version__, "sklearn": sklearn.__version__}}, indent=2), encoding="utf-8")
-    (output / "splits.json").write_text(json.dumps(splits, indent=2), encoding="utf-8")
-    (output / "definitions.jsonl").write_text("".join(json.dumps(item) + "\n" for item in definitions), encoding="utf-8")
-    pd.DataFrame(rows).to_csv(output / "runs.csv", index=False)
-    pd.DataFrame(traces, columns=["dataset", "split", "outer_seed", "search_seed", "learner", "arm",
-                                 "k", "evaluation", "best_inner_mae", "global_evaluation",
-                                 "global_best_inner_mae"]).to_csv(output / "convergence.csv", index=False)
-    pd.DataFrame(stability_rows, columns=["dataset", "split", "learner", "arm", "seed_a", "seed_b",
-                                          "selection_jaccard", "constructed_similarity"]).to_csv(output / "stability.csv", index=False)
+                snapshot()
+    snapshot()
+    save_progress(sum(row["candidate_evaluations"] for row in rows), "finished", "complete")
     return rows
 
 

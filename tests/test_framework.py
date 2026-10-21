@@ -1,6 +1,8 @@
 import tempfile
 import unittest
+import json
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -165,6 +167,43 @@ class ProtocolTests(unittest.TestCase):
             final = read_config(Path(__file__).resolve().parents[1] / "configs/final.yaml")
             with self.assertRaisesRegex(ValueError, "Lock the final shortlist"):
                 run(final, dataset, root / "never", smoke=True, data_root=root)
+
+    def test_resume_after_completed_arm_and_partial_k(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            rng = np.random.default_rng(8)
+            frame = pd.DataFrame(rng.normal(size=(80, 3)), columns=list("abc"))
+            frame["target"] = frame.a ** 2 + frame.b
+            frame.to_csv(root / "input.csv", index=False)
+            datasets = [{"name": "synthetic", "stage": "exploration", "path": "input.csv", "target": "target"}]
+            arm = {"name": "quadratic", "strategy": "construction", "family": "quadratic",
+                   "optimizer": "GA", "k_grid": [0, 1, 2], "budget": 80}
+            config = {"study": "rq4", "outer_seeds": [101], "search_seeds": [11],
+                      "inner_folds": 3, "learners": ["ols"],
+                      "arms": [arm, {**arm, "name": "second"}]}
+            real_optimize = optimize
+            calls = 0
+            def interrupt_on_fourth(*args, **kwargs):
+                nonlocal calls
+                calls += 1
+                if calls == 4:
+                    raise RuntimeError("simulated reboot")
+                return real_optimize(*args, **kwargs)
+            with patch("src.experiments.optimize", side_effect=interrupt_on_fourth):
+                with self.assertRaisesRegex(RuntimeError, "simulated reboot"):
+                    run(config, datasets, root / "resumed", data_root=root)
+            checkpoints = root / "resumed/checkpoints"
+            self.assertEqual(json.loads((checkpoints / "arm-0-0-0-0-0.json").read_text())["kind"], "complete")
+            self.assertEqual(json.loads((checkpoints / "arm-0-0-0-0-1.json").read_text())["evaluations"], 40)
+            self.assertEqual(len(pd.read_csv(root / "resumed/runs.csv")), 2)
+            resumed = run(config, datasets, root / "resumed", data_root=root)
+            fresh = run(config, datasets, root / "fresh", data_root=root)
+            self.assertEqual(len(resumed), len(fresh))
+            for left, right in zip(resumed, fresh):
+                self.assertEqual((left["arm"], left["candidate_evaluations"], left["selected_k"]),
+                                 (right["arm"], right["candidate_evaluations"], right["selected_k"]))
+                self.assertAlmostEqual(left["mae"], right["mae"])
+            self.assertEqual(json.loads((root / "resumed/progress.json").read_text())["status"], "complete")
 
 
 if __name__ == "__main__":
