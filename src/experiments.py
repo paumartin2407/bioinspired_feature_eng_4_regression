@@ -104,7 +104,7 @@ def matched_stability(first, second):
 
 def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter,
             seed, baseline_inner, baseline_test_mae, smoke=False, resume=None,
-            checkpoint=None, progress=None):
+            checkpoint=None, progress=None, forest_jobs=1):
     start = time.perf_counter()
     strategy, family = arm["strategy"], arm.get("family", "quadratic")
     ks = eligible_ks(arm, len(dev), len(columns))
@@ -125,7 +125,7 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
             scores[k], candidates[k] = baseline_inner, []
             continue
         objective = candidate_fitness(folds, strategy, family, k, model_name, parameter, seed, counts,
-                                      feature_pair if family == "gp" else None)
+                                      feature_pair if family == "gp" else None, forest_jobs)
         if progress is not None:
             original_objective = objective
             current_count = 0
@@ -306,6 +306,13 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
         raise ValueError("Final protocol requires one to three FE arms and at least one learner")
     if not config["arms"]:
         raise ValueError("Protocol needs at least one FE arm")
+    forest_jobs = config.get("forest_jobs", 1)
+    if not isinstance(forest_jobs, int) or forest_jobs < 1:
+        raise ValueError("forest_jobs must be a positive integer")
+    max_active_hours = config.get("max_active_hours")
+    if max_active_hours is not None and (not isinstance(max_active_hours, (int, float)) or
+                                         not np.isfinite(max_active_hours) or max_active_hours <= 0):
+        raise ValueError("max_active_hours must be positive")
     output = Path(output)
     selected = [item for item in datasets if item["stage"] == ("final" if config["study"] == "final" else "exploration")]
     if smoke:
@@ -351,13 +358,18 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
 
     def save_progress(count, active, status="running"):
         active_seconds = previous_seconds + time.perf_counter() - session_start
-        state = {"status": status, "started_at": started_at,
+        limit_reached = (status == "running" and max_active_hours is not None and
+                         active_seconds >= 3600 * max_active_hours)
+        state = {"status": "compute_limit_reached" if limit_reached else status,
+                 "started_at": started_at,
                  "updated_at": datetime.now(timezone.utc).isoformat(),
                  "active_seconds": active_seconds, "completed_candidate_evaluations": count,
                  "total_candidate_evaluations": total_evaluations, "active": active,
                  "completed_result_rows": len(rows)}
         _atomic_text(progress_path, json.dumps(state, indent=2))
         print(f"Progress {count}/{total_evaluations} evaluations; {active}", flush=True)
+        if limit_reached:
+            raise RuntimeError(f"Active compute limit reached in {output}; completed checkpoints are saved")
 
     def checkpoint_path(label):
         return output / "checkpoints" / (label + ".json")
@@ -408,7 +420,8 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
                     parameter, baseline_inner, baseline_report = saved["parameter"], saved["inner"], saved["report"]
                     tune_fits = baseline_report["tuning_model_fits"]
                 else:
-                    parameter, tune_fits, tune_scores = choose_learner(model_name, folds, outer_seed)
+                    parameter, tune_fits, tune_scores = choose_learner(model_name, folds, outer_seed,
+                                                                         forest_jobs)
                     baseline_inner = min(tune_scores)
                     baseline_start = time.perf_counter()
                     baseline_model = learner(model_name, parameter, outer_seed).fit(dev_matrix, y_dev)
@@ -447,7 +460,7 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
                                 search_seed, baseline_inner, baseline_report["mae"], smoke,
                                 resume=saved if saved else None,
                                 checkpoint=lambda state: save_checkpoint(path, state),
-                                progress=arm_progress)
+                                progress=arm_progress, forest_jobs=forest_jobs)
                         key = {"dataset": dataset["name"], "split": split_number,
                                "outer_seed": outer_seed, "search_seed": search_seed}
                         report.update(key)

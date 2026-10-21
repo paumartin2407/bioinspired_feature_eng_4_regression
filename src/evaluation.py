@@ -27,35 +27,36 @@ class EvaluationCounter:
         return score
 
 
-def learner(name, parameter=None, seed=0):
+def learner(name, parameter=None, seed=0, forest_jobs=1):
     if name == "ols":
         return LinearRegression()
     if name == "ridge":
         return Ridge(alpha=1.0 if parameter is None else parameter)
     if name == "forest":
         return RandomForestRegressor(n_estimators=100, min_samples_leaf=3 if parameter is None else parameter,
-                                     random_state=seed, n_jobs=1)
+                                     random_state=seed, n_jobs=forest_jobs)
     raise ValueError(f"Unknown learner: {name}")
 
 
 PARAMETERS = {"ols": [None], "ridge": [0.1, 1.0, 10.0, 100.0], "forest": [1, 3, 8]}
 
 
-def choose_learner(name, folds, seed):
+def choose_learner(name, folds, seed, forest_jobs=1):
     """Pre-tune on original features, then freeze the choice for all FE arms."""
     scores = []
     fits = 0
     for parameter in PARAMETERS[name]:
         fold_scores = []
         for train, val, yt, yv, *_ in folds:
-            model = learner(name, parameter, seed).fit(train, yt)
+            model = learner(name, parameter, seed, forest_jobs).fit(train, yt)
             fits += 1
             fold_scores.append(mean_absolute_error(yv, model.predict(val)))
         scores.append(float(np.mean(fold_scores)))
     return PARAMETERS[name][int(np.argmin(scores))], fits, scores
 
 
-def candidate_fitness(folds, strategy, family, k, name, parameter, seed, accounting, pair_transform=None):
+def candidate_fitness(folds, strategy, family, k, name, parameter, seed, accounting,
+                      pair_transform=None, forest_jobs=1):
     def score(genes):
         fold_scores = []
         for train, val, yt, yv, *_ in folds:
@@ -68,7 +69,7 @@ def candidate_fitness(folds, strategy, family, k, name, parameter, seed, account
                         transformed_train, transformed_val = pair_transform(train, val, genes)
                 if not np.isfinite(transformed_train).all() or not np.isfinite(transformed_val).all():
                     raise ValueError("Nonfinite feature")
-                model = learner(name, parameter, seed)
+                model = learner(name, parameter, seed, forest_jobs)
                 accounting["fits"] += 1
                 model.fit(transformed_train, yt)
                 prediction = model.predict(transformed_val)

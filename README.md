@@ -25,13 +25,13 @@ python -m src.experiments --config configs/rq1_fixed.yaml --output results/rq1_f
 python -m src.experiments --config configs/rq2.yaml --output results/rq2
 python -m src.experiments --config configs/rq2_fixed.yaml --output results/rq2_fixed
 python -m src.experiments --config configs/rq3.yaml --output results/rq3
-python -m src.experiments --config configs/rq4.yaml --output results/rq4
+python -m src.experiments --config configs/rq4_120h.yaml --output results/rq4_120h
 python -m src.reporting --runs results/rq1/runs.csv --output results/rq1_summary
 ```
 
 Every study now writes `progress.json` during evaluation and saves result tables after each completed arm. The `checkpoints/` directory also saves each completed `k` search. If a run is interrupted, rerun the same command with the same output directory; it resumes from those checkpoints after verifying the protocol and source files. The current unfinished `k` search restarts. Candidate evaluations have very different costs across learners and datasets, so the progress file reports counts and active compute time without an extrapolated finish time. Completed output directories still refuse reruns.
 
-RQ4's two initial pipelines should be replaced with a development-evidence shortlist before that study. `configs/final.yaml` remains disabled and the manifest has no final-stage datasets; no independent confirmation run is available under this two-dataset scope.
+The [120-hour RQ4 design](docs/rq4_120h.md) records its reductions, timing estimate and interpretation limits. The original `configs/rq4.yaml` remains available for protocol history. `configs/final.yaml` remains disabled and the manifest has no final-stage datasets; no independent confirmation run is available under this two-dataset scope.
 
 `configs/rq2.yaml` is the primary adaptive-`k` pipeline comparison. `configs/rq2_fixed.yaml` is the secondary capacity check at matched `k=1,2,4`. GP changes both feature language and search mechanism, so its comparison is at pipeline level. The fixed-`k` arms spend 1,000 evaluations at one dimension; adaptive arms divide 1,000 evaluations among eligible searched `k` values. Their difference cannot be interpreted as a feature-count effect alone.
 

@@ -204,6 +204,10 @@ class ProtocolTests(unittest.TestCase):
                                  (right["arm"], right["candidate_evaluations"], right["selected_k"]))
                 self.assertAlmostEqual(left["mae"], right["mae"])
             self.assertEqual(json.loads((root / "resumed/progress.json").read_text())["status"], "complete")
+            with self.assertRaisesRegex(RuntimeError, "Active compute limit reached"):
+                run({**config, "max_active_hours": 1e-10}, datasets, root / "limited", data_root=root)
+            self.assertEqual(json.loads((root / "limited/progress.json").read_text())["status"],
+                             "compute_limit_reached")
 
 
 if __name__ == "__main__":
