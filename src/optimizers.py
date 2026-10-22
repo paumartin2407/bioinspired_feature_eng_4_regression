@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 
-import cma
 import numpy as np
 
 from .evaluation import EvaluationCounter
@@ -44,6 +43,8 @@ def optimize(method, objective, dimension, seed, budget=1000):
         return score
 
     if method == "CMA-ES":
+        import cma
+
         # CMA-ES has its own Gaussian population; its starting mean uses the same
         # uniform region as the other methods. pycma handles boundary transforms.
         initial_mean = rng.uniform(LOWER_BOUND, UPPER_BOUND, dimension)
