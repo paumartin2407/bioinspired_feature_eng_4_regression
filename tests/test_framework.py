@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 import json
+import os
 from pathlib import Path
 from unittest.mock import patch
 
@@ -9,7 +10,7 @@ import pandas as pd
 
 from src.data import fit_preprocessor, prepared_folds, transformed
 from src.evaluation import candidate_fitness, choose_learner
-from src.experiments import allocated_budgets, matched_stability, read_config, run, run_arm
+from src.experiments import _atomic_text, allocated_budgets, matched_stability, read_config, run, run_arm
 from src.gp_features import evaluate as evaluate_gp, feature_pair, node_count, optimize_gp
 from src.optimizers import METHODS, optimize
 from src.replay import replay
@@ -18,6 +19,27 @@ from src.strategies import transform
 
 
 class RepresentationTests(unittest.TestCase):
+    def test_atomic_progress_write_survives_temporary_file_lock(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "progress.json"
+            path.write_text("old", encoding="utf-8")
+            replace = os.replace
+            attempts = 0
+
+            def locked_then_replace(source, destination):
+                nonlocal attempts
+                attempts += 1
+                if attempts < 3:
+                    raise PermissionError(5, "temporary lock")
+                replace(source, destination)
+
+            with patch("src.experiments.os.replace", side_effect=locked_then_replace), \
+                    patch("src.experiments.time.sleep") as sleep:
+                _atomic_text(path, "new")
+            self.assertEqual(path.read_text(encoding="utf-8"), "new")
+            self.assertEqual(attempts, 3)
+            self.assertEqual(sleep.call_count, 2)
+
     def test_variable_k_and_replay(self):
         X = np.array([[1., 2.], [3., 4.]])
         for family in ("quadratic", "rbf", "interactions"):

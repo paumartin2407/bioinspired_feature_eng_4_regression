@@ -266,10 +266,21 @@ def _jsonable(value):
     return value
 
 
+def _replace_with_retry(temporary, path):
+    for attempt in range(10):
+        try:
+            os.replace(temporary, path)
+            return
+        except PermissionError:
+            if attempt == 9:
+                raise
+            time.sleep(0.1 * (attempt + 1))
+
+
 def _atomic_text(path, value):
     temporary = path.with_name(path.name + ".tmp")
     temporary.write_text(value, encoding="utf-8")
-    os.replace(temporary, path)
+    _replace_with_retry(temporary, path)
 
 
 def _save_tables(output, rows, definitions, traces, splits, stability_rows):
@@ -285,7 +296,7 @@ def _save_tables(output, rows, definitions, traces, splits, stability_rows):
     ):
         temporary = output / (name + ".tmp")
         frame.to_csv(temporary, index=False)
-        os.replace(temporary, output / name)
+        _replace_with_retry(temporary, output / name)
 
 
 def _saved_signature(definition, arm, dev_matrix):
