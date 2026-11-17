@@ -13,13 +13,11 @@ import numpy as np
 import pandas as pd
 import sklearn
 from scipy.optimize import linear_sum_assignment
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.metrics import mean_absolute_error
 
 from .data import fit_preprocessor, load_dataset, make_outer_split, prepared_folds, transformed
-from .evaluation import candidate_fitness, choose_learner, learner, metrics
-from .gp_features import feature_pair, node_count, optimize_gp
-from .optimizers import METHODS, optimize
+from .evaluation import candidate_fitness, choose_learner, fit_with_diagnostics, learner, metrics
+from .optimizers import optimize, optimize_until
+from .representations import components, dimension
 from .strategies import decode, gene_count, transform
 
 
@@ -52,8 +50,6 @@ def eligible_ks(arm, n_dev, d):
 
 
 def _apply_pair(train, other, arm, candidate, k):
-    if arm["family"] == "gp":
-        return feature_pair(train, other, candidate)
     return (transform(train, arm["strategy"], arm["family"], candidate, k),
             transform(other, arm["strategy"], arm["family"], candidate, k))
 
@@ -65,17 +61,20 @@ def construction_inputs(family, candidate, d, k):
         return set(np.flatnonzero(np.any(np.abs(np.asarray(candidate).reshape(k, d)) > 1e-12, axis=0)))
     if family == "rbf":
         return set(range(d))  # Every input contributes to each squared distance.
+    if family == "hinge":
+        weights = np.asarray(candidate).reshape(k, d + 1)[:, :d]
+        return set(np.flatnonzero(np.any(np.abs(weights) > 1e-12, axis=0)))
+    parts = components(family, k)
+    if parts is not None:
+        used, offset = set(), 0
+        for name, count in parts:
+            end = offset + dimension(name, d, count)
+            used.update(construction_inputs(name, np.asarray(candidate)[offset:end], d, count))
+            offset = end
+        return used
     if family == "interactions":
         pairs = np.minimum(((np.asarray(candidate).reshape(k, 2) + 1) * d / 2).astype(int), d - 1)
         return set(pairs.ravel())
-    if family == "gp":
-        def leaves(tree):
-            if tree[0] == "x":
-                return {int(tree[1])}
-            if tree[0] == "c":
-                return set()
-            return leaves(tree[1]) | leaves(tree[2])
-        return set().union(*(leaves(tree) for tree in candidate))
     raise ValueError(f"Unknown feature family: {family}")
 
 
@@ -104,8 +103,10 @@ def matched_stability(first, second):
 
 def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter,
             seed, baseline_inner, baseline_test_mae, smoke=False, resume=None,
-            checkpoint=None, progress=None, forest_jobs=1):
+            checkpoint=None, progress=None, learner_seed=None):
     start = time.perf_counter()
+    cpu_start = time.process_time()
+    learner_seed = seed if learner_seed is None else learner_seed
     strategy, family = arm["strategy"], arm.get("family", "quadratic")
     ks = eligible_ks(arm, len(dev), len(columns))
     if smoke and len(ks) > 1:
@@ -118,27 +119,49 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
     counts = resume["counts"] if resume else {"fits": 0, "failed_folds": 0, "failed_candidates": 0}
     evaluations = resume["evaluations"] if resume else 0
     prior_seconds = resume["elapsed_seconds"] if resume else 0.0
+    prior_cpu_seconds = resume.get("cpu_seconds", 0.0) if resume else 0.0
+    time_budget = arm.get("time_budget_seconds")
+    if time_budget is not None:
+        if strategy != "construction" or 0 not in ks or not np.isfinite(time_budget) or time_budget <= 0:
+            raise ValueError("Timed search requires construction, a continuous family, k=0 and a positive time budget")
+        if smoke:
+            time_budget = min(time_budget, 0.5)
+    searched_ks = [k for k in ks if k > 0]
+    if time_budget is not None and not searched_ks:
+        raise ValueError("Timed search requires at least one positive k")
+    actual_by_k = {int(k): v for k, v in resume.get("actual_evaluations_by_k", {}).items()} if resume else {}
+    prior_search_seconds = resume.get("search_elapsed_seconds", 0.0) if resume else 0.0
+    search_start = time.perf_counter()
     for k in ks:
         if k in scores:
             continue
         if strategy == "construction" and k == 0:
             scores[k], candidates[k] = baseline_inner, []
             continue
-        objective = candidate_fitness(folds, strategy, family, k, model_name, parameter, seed, counts,
-                                      feature_pair if family == "gp" else None, forest_jobs)
-        if progress is not None:
+        objective = candidate_fitness(folds, strategy, family, k, model_name, parameter, learner_seed, counts)
+        timing = []
+        record_timing = arm.get("record_search_timing", False)
+        if progress is not None or record_timing:
             original_objective = objective
             current_count = 0
             def objective(genes):
                 nonlocal current_count
                 score = original_objective(genes)
                 current_count += 1
-                if current_count % 25 == 0:
+                if record_timing:
+                    timing.append((prior_seconds + time.perf_counter() - start,
+                                   prior_cpu_seconds + time.process_time() - cpu_start))
+                if progress is not None and current_count % 25 == 0:
                     progress(evaluations + current_count, k)
                 return score
-        if family == "gp":
-            candidate, score, spent, history = optimize_gp(objective, len(columns), k, seed + 1009 * k,
-                                                            allocation[k])
+        if time_budget is not None:
+            position = searched_ks.index(k) + 1
+            deadline = search_start + max(0.0, time_budget * position / len(searched_ks) - prior_search_seconds)
+            result = optimize_until(arm["optimizer"], objective,
+                                    gene_count(strategy, family, len(columns), k), seed + 1009 * k,
+                                    deadline, allocation[k])
+            candidate = result.genes if result.genes is not None else []
+            score, spent, history = result.score, result.evaluations, result.history
         else:
             result = optimize(arm["optimizer"], objective,
                               gene_count(strategy, family, len(columns), k), seed + 1009 * k,
@@ -146,23 +169,32 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
             candidate, score, spent, history = result.genes, result.score, result.evaluations, result.history
         offset = evaluations
         evaluations += spent
+        actual_by_k[k] = spent
         scores[k], candidates[k] = score, candidate
         previous_best = min((value for other_k, value in scores.items() if other_k != k), default=float("inf"))
         traces.extend({"k": k, "evaluation": count, "best_inner_mae": best,
                        "global_evaluation": offset + count,
-                       "global_best_inner_mae": min(previous_best, best)} for count, best in history)
+                       "global_best_inner_mae": min(previous_best, best),
+                       "elapsed_wall_seconds": timing[count - 1][0] if record_timing else None,
+                       "elapsed_cpu_seconds": timing[count - 1][1] if record_timing else None}
+                      for count, best in history)
         if checkpoint is not None:
             checkpoint({"kind": "partial", "scores": {str(key): value for key, value in scores.items()},
                         "candidates": {str(key): _jsonable(value) for key, value in candidates.items()},
                         "traces": traces, "counts": counts, "evaluations": evaluations,
-                        "elapsed_seconds": prior_seconds + time.perf_counter() - start})
+                        "elapsed_seconds": prior_seconds + time.perf_counter() - start,
+                        "cpu_seconds": prior_cpu_seconds + time.process_time() - cpu_start,
+                        "search_elapsed_seconds": prior_search_seconds + time.perf_counter() - search_start,
+                        "actual_evaluations_by_k": {str(key): value for key, value in actual_by_k.items()}})
         if progress is not None:
             progress(evaluations, k)
+    search_elapsed_seconds = prior_search_seconds + time.perf_counter() - search_start
     best_score = min(scores.values())
     tolerance = arm.get("k_tolerance", 1e-4)
     selected_k = min(k for k in ks if scores[k] <= best_score + tolerance)
     candidate = candidates[selected_k]
     fallback = not np.isfinite(scores[selected_k])
+    selected_inner_score = scores[selected_k] if not fallback else float("nan")
     if fallback:
         selected_k, candidate = 0, []
     preprocessor = fit_preprocessor(dev)
@@ -176,9 +208,9 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
     try:
         if not np.isfinite(train_features).all() or not np.isfinite(test_features).all():
             raise ValueError("Nonfinite final features")
-        model = learner(model_name, parameter, seed)
+        model = learner(model_name, parameter, learner_seed)
         counts["fits"] += 1
-        model.fit(train_features, y_dev)
+        fit_with_diagnostics(model, train_features, y_dev, counts)
         prediction = model.predict(test_features)
         if not np.isfinite(prediction).all():
             raise ValueError("Nonfinite final prediction")
@@ -188,22 +220,27 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
         report = {name: float("nan") for name in
                   ("mae", "rmse", "r2", "p95_abs_residual", "p99_abs_residual", "max_abs_residual")}
     report.update({"arm": arm["name"], "strategy": strategy, "family": family,
-                   "optimizer": arm.get("optimizer", "GP" if family == "gp" else "none"),
-                   "learner": model_name, "learner_parameter": parameter,
+                   "optimizer": arm.get("optimizer", "none"),
+                   "learner": model_name, "learner_parameter": parameter, "learner_seed": learner_seed,
                    "selected_k": selected_k, "selected_originals": len(columns) if fallback or
                    strategy in ("none", "construction") else int(decode(strategy, family, candidate, len(columns), selected_k)[0].sum()),
                    "transformed_dim": train_features.shape[1], "candidate_evaluations": evaluations,
                    "fe_model_fits": counts["fits"], "failed_folds": counts["failed_folds"],
+                   "convergence_warning_fits": counts.get("convergence_warning_fits", 0),
                    "failed_candidates": counts["failed_candidates"], "outer_failure": outer_failure,
-                   "runtime_seconds": prior_seconds + time.perf_counter() - start, "fallback": fallback,
+                   "runtime_seconds": prior_seconds + time.perf_counter() - start,
+                   "cpu_seconds": prior_cpu_seconds + time.process_time() - cpu_start, "fallback": fallback,
+                   "search_wall_seconds": search_elapsed_seconds if time_budget is not None else None,
+                   "search_time_budget_seconds": time_budget,
+                   "selected_inner_mae": selected_inner_score if time_budget is not None else None,
+                   "baseline_inner_mae": baseline_inner if time_budget is not None else None,
                    "delta_mae": report["mae"] - baseline_test_mae,
                    "mae_reduction_pct": 100 * (baseline_test_mae - report["mae"]) / baseline_test_mae
                    if baseline_test_mae else float("nan")})
     direct_mask = np.ones(len(columns), dtype=bool) if fallback or strategy == "construction" else decode(
         strategy, family, candidate, len(columns), selected_k)[0]
     direct_names = [name for name, keep in zip(columns, direct_mask) if keep]
-    construction_genes = candidate if family == "gp" else decode(
-        strategy, family, candidate, len(columns), selected_k)[1]
+    construction_genes = decode(strategy, family, candidate, len(columns), selected_k)[1]
     constructed_indices = set() if fallback else construction_inputs(family, construction_genes, len(columns), selected_k)
     constructed_names = [columns[index] for index in sorted(constructed_indices)]
     report["construction_input_count"] = len(constructed_names)
@@ -211,13 +248,16 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
     definition = {"arm": arm["name"], "k": selected_k, "columns": columns,
                   "candidate": _jsonable(candidate), "inner_scores": {str(k): scores[k] for k in ks},
                   "evaluation_allocation": {str(k): allocation.get(k, 0) for k in ks},
-                  "learner_parameter": parameter, "fallback": fallback,
+                  "actual_evaluations_by_k": {str(k): actual_by_k.get(k, 0) for k in ks},
+                  "time_allocation_seconds": {str(k): time_budget / len(searched_ks) if k > 0 and time_budget is not None else 0 for k in ks},
+                  "learner_parameter": parameter, "learner_seed": learner_seed, "fallback": fallback,
                   "direct_originals": direct_names,
                   "construction_inputs": constructed_names,
                   "dev_features_sha256": array_digest(train_features) if np.isfinite(train_features).all() else None,
                   "test_features_sha256": array_digest(test_features) if np.isfinite(test_features).all() else None,
                   "prediction_sha256": array_digest(prediction) if not outer_failure else None,
-                  "gp_nodes": sum(node_count(tree) for tree in candidate) if family == "gp" and not fallback else 0}
+                  # Preserve the existing result schema for comparisons with saved runs.
+                  "gp_nodes": 0}
     report["gp_nodes"] = definition["gp_nodes"]
     selected = set(direct_names)
     constructed = train_features[:, len(selected):]
@@ -227,33 +267,6 @@ def run_arm(arm, folds, dev, test, y_dev, y_test, columns, model_name, parameter
     report["max_abs_constructed"] = float(np.max(np.abs(constructed))) if constructed.size and finite_construction else float("nan")
     signature = {"selected": selected, "constructed": constructed}
     return report, definition, traces, signature
-
-
-def polynomial_reference(folds, dev_matrix, test_matrix, y_dev, y_test, seed):
-    start = time.perf_counter()
-    from sklearn.linear_model import Ridge
-    scores = []
-    for alpha in (0.1, 1.0, 10.0, 100.0):
-        fold_scores = []
-        for train, val, yt, yv, *_ in folds:
-            polynomial = PolynomialFeatures(degree=2, include_bias=False)
-            built = polynomial.fit_transform(train)
-            model = Ridge(alpha=alpha).fit(built, yt)
-            fold_scores.append(mean_absolute_error(yv, model.predict(polynomial.transform(val))))
-        scores.append(float(np.mean(fold_scores)))
-    alpha = (0.1, 1.0, 10.0, 100.0)[int(np.argmin(scores))]
-    polynomial = PolynomialFeatures(degree=2, include_bias=False)
-    model = Ridge(alpha=alpha).fit(polynomial.fit_transform(dev_matrix), y_dev)
-    report = metrics(y_test, model.predict(polynomial.transform(test_matrix)))
-    report.update({"arm": "polynomial_ridge_reference", "strategy": "deterministic_reference",
-                   "family": "polynomial", "optimizer": "none", "learner": "ridge",
-                   "learner_parameter": alpha, "selected_k": polynomial.n_output_features_ - dev_matrix.shape[1],
-                   "selected_originals": dev_matrix.shape[1], "transformed_dim": polynomial.n_output_features_,
-                   "candidate_evaluations": 0, "fe_model_fits": 0, "tuning_model_fits": 12,
-                   "baseline_model_fits": 1, "failed_folds": 0, "failed_candidates": 0,
-                   "outer_failure": False,
-                   "runtime_seconds": time.perf_counter() - start, "fallback": False})
-    return report
 
 
 def _jsonable(value):
@@ -290,7 +303,7 @@ def _save_tables(output, rows, definitions, traces, splits, stability_rows):
         ("runs.csv", pd.DataFrame(rows)),
         ("convergence.csv", pd.DataFrame(traces, columns=["dataset", "split", "outer_seed",
             "search_seed", "learner", "arm", "k", "evaluation", "best_inner_mae",
-            "global_evaluation", "global_best_inner_mae"])),
+            "global_evaluation", "global_best_inner_mae", "elapsed_wall_seconds", "elapsed_cpu_seconds"])),
         ("stability.csv", pd.DataFrame(stability_rows, columns=["dataset", "split", "learner",
             "arm", "seed_a", "seed_b", "selection_jaccard", "constructed_similarity"])),
     ):
@@ -311,15 +324,26 @@ def _saved_signature(definition, arm, dev_matrix):
 
 
 def run(config, datasets, output, smoke=False, data_root=ROOT):
+    if config.get("references"):
+        raise ValueError("Reference models are not supported by the retained phase protocols")
+    for name in config.get("learners", []):
+        if name.startswith("linear_panel_"):
+            settings = config.get("fixed_model_settings", {}).get(name.removeprefix("linear_panel_"))
+            if settings is not None:
+                model = learner(name).named_steps["transformedtargetregressor"].regressor
+                actual = model.get_params()
+                if any(key not in actual or actual[key] != value for key, value in settings.items()):
+                    raise ValueError(f"Configured settings for {name} do not match the fixed learner")
+    if config.get("time_limited", False):
+        # Load the optimizer dependency before timing any arm; algorithm-specific
+        # initialization inside each search remains charged to its deadline.
+        import cma  # noqa: F401
     if config["study"] == "final" and not config.get("locked", False):
         raise ValueError("Lock the final shortlist and full protocol before running final evaluation")
     if config["study"] == "final" and (not 1 <= len(config["arms"]) <= 3 or not config["learners"]):
         raise ValueError("Final protocol requires one to three FE arms and at least one learner")
     if not config["arms"]:
         raise ValueError("Protocol needs at least one FE arm")
-    forest_jobs = config.get("forest_jobs", 1)
-    if not isinstance(forest_jobs, int) or forest_jobs < 1:
-        raise ValueError("forest_jobs must be a positive integer")
     max_active_hours = config.get("max_active_hours")
     if max_active_hours is not None and (not isinstance(max_active_hours, (int, float)) or
                                          not np.isfinite(max_active_hours) or max_active_hours <= 0):
@@ -342,6 +366,12 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
                 "smoke_row_cap": 120 if smoke else None, "source_sha256": source_hashes,
                 "versions": {"python": platform.python_version(), "numpy": np.__version__,
                              "pandas": pd.__version__, "sklearn": sklearn.__version__}}
+    if config.get("record_environment", False):
+        protocol["runtime_environment"] = {
+            "platform": platform.platform(), "processor": platform.processor(),
+            "logical_cpu_count": os.cpu_count(),
+            "thread_environment": {name: os.environ.get(name) for name in
+                                   ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS")}}
     progress_path = output / "progress.json"
     if output.exists() and any(output.iterdir()):
         if not progress_path.exists() or not (output / "checkpoints").is_dir():
@@ -364,7 +394,7 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
     session_start = time.perf_counter()
     total_evaluations = (len(selected) * (1 if smoke else len(config["outer_seeds"])) *
                          len(config["learners"]) * (1 if smoke else len(config["search_seeds"])) *
-                         sum(40 if smoke else arm.get("budget", 1000) for arm in config["arms"]))
+                         sum(40 if smoke else arm.get("budget", 1000) for arm in config["arms"])) if not config.get("time_limited", False) else None
     rows, definitions, traces, splits, stability_rows = [], [], [], [], []
 
     def save_progress(count, active, status="running"):
@@ -378,7 +408,7 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
                  "total_candidate_evaluations": total_evaluations, "active": active,
                  "completed_result_rows": len(rows)}
         _atomic_text(progress_path, json.dumps(state, indent=2))
-        print(f"Progress {count}/{total_evaluations} evaluations; {active}", flush=True)
+        print(f"Progress {count}/{total_evaluations if total_evaluations is not None else 'time-limited'} evaluations; {active}", flush=True)
         if limit_reached:
             raise RuntimeError(f"Active compute limit reached in {output}; completed checkpoints are saved")
 
@@ -413,17 +443,6 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
             preprocessor = fit_preprocessor(dev)
             dev_matrix = transformed(preprocessor, dev, columns).to_numpy()
             test_matrix = transformed(preprocessor, test, columns).to_numpy()
-            if "polynomial_ridge" in config.get("references", []):
-                path = checkpoint_path(f"reference-{dataset_index}-{split_number}")
-                if path.exists():
-                    reference = json.loads(path.read_text(encoding="utf-8"))
-                else:
-                    reference = polynomial_reference(folds, dev_matrix, test_matrix, y_dev, y_test, outer_seed)
-                    reference.update({"dataset": dataset["name"], "split": split_number,
-                                      "outer_seed": outer_seed, "search_seed": None})
-                    save_checkpoint(path, reference)
-                rows.append(reference)
-                snapshot()
             for model_index, model_name in enumerate(config["learners"]):
                 path = checkpoint_path(f"baseline-{dataset_index}-{split_number}-{model_index}")
                 if path.exists():
@@ -431,21 +450,24 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
                     parameter, baseline_inner, baseline_report = saved["parameter"], saved["inner"], saved["report"]
                     tune_fits = baseline_report["tuning_model_fits"]
                 else:
+                    baseline_diagnostics = {}
                     parameter, tune_fits, tune_scores = choose_learner(model_name, folds, outer_seed,
-                                                                         forest_jobs)
+                                                                         baseline_diagnostics)
                     baseline_inner = min(tune_scores)
                     baseline_start = time.perf_counter()
-                    baseline_model = learner(model_name, parameter, outer_seed).fit(dev_matrix, y_dev)
+                    baseline_model = fit_with_diagnostics(learner(model_name, parameter, outer_seed),
+                                                          dev_matrix, y_dev, baseline_diagnostics)
                     baseline_report = metrics(y_test, baseline_model.predict(test_matrix))
                     baseline_report.update({"dataset": dataset["name"], "split": split_number,
                                             "outer_seed": outer_seed, "search_seed": None, "arm": "no_fe",
                                             "strategy": "none", "family": "none", "optimizer": "none",
-                                            "learner": model_name, "learner_parameter": parameter,
+                                            "learner": model_name, "learner_parameter": parameter, "learner_seed": outer_seed,
                                             "selected_k": 0, "selected_originals": len(columns),
                                             "transformed_dim": len(columns), "candidate_evaluations": 0,
                                             "fe_model_fits": 0, "tuning_model_fits": tune_fits,
                                             "baseline_model_fits": 1, "failed_folds": 0,
                                             "failed_candidates": 0, "outer_failure": False,
+                                            "convergence_warning_fits": baseline_diagnostics.get("convergence_warning_fits", 0),
                                             "runtime_seconds": time.perf_counter() - baseline_start,
                                             "delta_mae": 0.0, "mae_reduction_pct": 0.0,
                                             "fallback": False})
@@ -471,7 +493,8 @@ def run(config, datasets, output, smoke=False, data_root=ROOT):
                                 search_seed, baseline_inner, baseline_report["mae"], smoke,
                                 resume=saved if saved else None,
                                 checkpoint=lambda state: save_checkpoint(path, state),
-                                progress=arm_progress, forest_jobs=forest_jobs)
+                                progress=arm_progress,
+                                learner_seed=outer_seed if config.get("paired_learner_seed", False) else None)
                         key = {"dataset": dataset["name"], "split": split_number,
                                "outer_seed": outer_seed, "search_seed": search_seed}
                         report.update(key)

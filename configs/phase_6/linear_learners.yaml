@@ -1,0 +1,23 @@
+{
+  "study": "phase6_linear_learners",
+  "outer_seeds": [101, 211, 307, 401, 503],
+  "search_seeds": [11, 23, 37, 47, 59],
+  "inner_folds": 3,
+  "paired_learner_seed": true,
+  "record_environment": true,
+  "max_active_hours": 118,
+  "learners": ["linear_panel_ols", "linear_panel_ridge", "linear_panel_lasso", "linear_panel_elastic", "linear_panel_huber"],
+  "fixed_model_settings": {
+    "ols": {"fit_intercept": true},
+    "ridge": {"alpha": 1.0, "fit_intercept": true},
+    "lasso": {"alpha": 0.01, "max_iter": 10000, "fit_intercept": true},
+    "elastic": {"alpha": 0.01, "l1_ratio": 0.5, "max_iter": 10000, "fit_intercept": true},
+    "huber": {"epsilon": 1.35, "alpha": 0.0001, "max_iter": 1000, "fit_intercept": true},
+    "feature_scaler": "StandardScaler fitted after construction on each training fold",
+    "target_scaler": "StandardScaler fitted on each training fold; predictions inverse-transformed"
+  },
+  "arms": [
+    {"name": "rbf", "strategy": "construction", "family": "rbf", "optimizer": "GA", "k_grid": [0, 1, 2, 4, 8], "budget": 500, "record_search_timing": true},
+    {"name": "rbf_heavy_mixture", "strategy": "construction", "family": "quadratic_rbf_hinge_rbf_heavy", "optimizer": "GA", "k_grid": [0, 4, 6], "budget": 500, "record_search_timing": true}
+  ]
+}

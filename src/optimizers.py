@@ -1,6 +1,7 @@
 """Controlled GA, PSO, ES, DE/rand/1/bin and CMA-ES over bounded genes."""
 
 from dataclasses import dataclass
+import time
 
 import numpy as np
 
@@ -22,6 +23,35 @@ class SearchResult:
     score: float
     evaluations: int
     history: list
+
+
+class _TimeLimitReached(Exception):
+    """Stop before starting another candidate after the deadline."""
+
+
+def optimize_until(method, objective, dimension, seed, deadline, budget=100000, clock=time.perf_counter):
+    """Return the best fully evaluated candidate before a time deadline.
+
+    A candidate already being evaluated is allowed to finish. Optimizer setup and
+    incomplete generations consume the same time allowance as candidate scoring.
+    """
+    best_vector, best_score, history = None, float("inf"), []
+
+    def timed_objective(vector):
+        nonlocal best_vector, best_score
+        if clock() >= deadline:
+            raise _TimeLimitReached()
+        score = float(objective(vector))
+        if best_vector is None or score < best_score:
+            best_vector, best_score = np.asarray(vector, dtype=float).copy(), score
+        history.append((len(history) + 1, best_score))
+        return score
+
+    try:
+        optimize(method, timed_objective, dimension, seed, budget)
+    except _TimeLimitReached:
+        pass
+    return SearchResult(best_vector, best_score, len(history), history)
 
 
 def optimize(method, objective, dimension, seed, budget=1000):

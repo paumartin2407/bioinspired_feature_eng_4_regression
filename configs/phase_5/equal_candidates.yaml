@@ -1,0 +1,20 @@
+{
+  "study": "followup_rq3_optimizers",
+  "outer_seeds": [101, 211, 307, 401, 503],
+  "search_seeds": [11, 23, 37, 47, 59],
+  "inner_folds": 3,
+  "record_environment": true,
+  "learners": ["ols"],
+  "arms": [
+    {"name": "rbf_ga", "strategy": "construction", "family": "rbf", "optimizer": "GA", "k_grid": [0, 1, 2, 4, 8], "budget": 1000, "record_search_timing": true},
+    {"name": "rbf_pso", "strategy": "construction", "family": "rbf", "optimizer": "PSO", "k_grid": [0, 1, 2, 4, 8], "budget": 1000, "record_search_timing": true},
+    {"name": "rbf_es", "strategy": "construction", "family": "rbf", "optimizer": "ES", "k_grid": [0, 1, 2, 4, 8], "budget": 1000, "record_search_timing": true},
+    {"name": "rbf_de", "strategy": "construction", "family": "rbf", "optimizer": "DE", "k_grid": [0, 1, 2, 4, 8], "budget": 1000, "record_search_timing": true},
+    {"name": "rbf_cma", "strategy": "construction", "family": "rbf", "optimizer": "CMA-ES", "k_grid": [0, 1, 2, 4, 8], "budget": 1000, "record_search_timing": true},
+    {"name": "mixed_ga", "strategy": "construction", "family": "quadratic_rbf_hinge_rbf_heavy", "optimizer": "GA", "k_grid": [0, 4, 6], "budget": 1000, "record_search_timing": true},
+    {"name": "mixed_pso", "strategy": "construction", "family": "quadratic_rbf_hinge_rbf_heavy", "optimizer": "PSO", "k_grid": [0, 4, 6], "budget": 1000, "record_search_timing": true},
+    {"name": "mixed_es", "strategy": "construction", "family": "quadratic_rbf_hinge_rbf_heavy", "optimizer": "ES", "k_grid": [0, 4, 6], "budget": 1000, "record_search_timing": true},
+    {"name": "mixed_de", "strategy": "construction", "family": "quadratic_rbf_hinge_rbf_heavy", "optimizer": "DE", "k_grid": [0, 4, 6], "budget": 1000, "record_search_timing": true},
+    {"name": "mixed_cma", "strategy": "construction", "family": "quadratic_rbf_hinge_rbf_heavy", "optimizer": "CMA-ES", "k_grid": [0, 4, 6], "budget": 1000, "record_search_timing": true}
+  ]
+}

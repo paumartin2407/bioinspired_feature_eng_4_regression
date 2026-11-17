@@ -45,7 +45,7 @@ def replay(output, dataset_name, split_number, model_name, arm_name, search_seed
         raise AssertionError("Final development transformation did not replay")
     if array_digest(test_features) != definition["test_features_sha256"]:
         raise AssertionError("Final test transformation did not replay")
-    prediction = learner(model_name, definition["learner_parameter"], search_seed).fit(
+    prediction = learner(model_name, definition["learner_parameter"], definition.get("learner_seed", search_seed)).fit(
         train_features, y[dev_index]).predict(test_features)
     if array_digest(prediction) != definition["prediction_sha256"]:
         raise AssertionError("Final predictions did not replay")

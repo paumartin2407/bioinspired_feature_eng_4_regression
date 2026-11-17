@@ -11,8 +11,7 @@ import pandas as pd
 from src.data import fit_preprocessor, prepared_folds, transformed
 from src.evaluation import candidate_fitness, choose_learner
 from src.experiments import _atomic_text, allocated_budgets, matched_stability, read_config, run, run_arm
-from src.gp_features import evaluate as evaluate_gp, feature_pair, node_count, optimize_gp
-from src.optimizers import METHODS, optimize
+from src.optimizers import METHODS, optimize, optimize_until
 from src.replay import replay
 from src.representations import construct
 from src.strategies import transform
@@ -67,8 +66,6 @@ class RepresentationTests(unittest.TestCase):
         repeated = construct(X, [-1., -1., -1., -1.], "interactions", 2)
         np.testing.assert_allclose(repeated[:, 0], repeated[:, 1])
         self.assertEqual(np.linalg.matrix_rank(repeated), 1)
-        huge = evaluate_gp(("*", ("x", 0), ("x", 0)), np.array([[1e200], [-1e200]]))
-        np.testing.assert_allclose(huge, [1e6, 1e6])
         accounting = {"fits": 0, "failed_folds": 0, "failed_candidates": 0}
         fold = [(np.array([[1e200], [2e200]]), np.array([[3e200]]),
                  np.array([0., 1.]), np.array([2.]), None, None)]
@@ -76,18 +73,52 @@ class RepresentationTests(unittest.TestCase):
         self.assertEqual(score, float("inf"))
         self.assertEqual(accounting["failed_candidates"], 1)
 
-    def test_gp_set_and_train_only_scaling(self):
-        train, held = np.array([[0.], [1.], [2.]]), np.array([[100.]])
-        first, second = feature_pair(train, held, [("x", 0), ("*", ("x", 0), ("x", 0))])
-        self.assertEqual(first.shape, (3, 3))
-        self.assertGreater(second[0, 1], 100.)
-        self.assertEqual(node_count(("*", ("x", 0), ("x", 0))), 3)
-        best, _, count, _ = optimize_gp(lambda trees: float(sum(node_count(t) for t in trees)), 2, 2, 7, 21)
-        self.assertEqual(len(best), 2)
-        self.assertEqual(count, 21)
-
 
 class ProtocolTests(unittest.TestCase):
+    def test_mismatched_fixed_learner_settings_are_rejected(self):
+        config = {"learners": ["linear_panel_ridge"],
+                  "fixed_model_settings": {"ridge": {"alpha": 10.0}}}
+        with self.assertRaisesRegex(ValueError, "do not match the fixed learner"):
+            run(config, [], "unused")
+
+    def test_removed_reference_models_are_not_silently_ignored(self):
+        with self.assertRaisesRegex(ValueError, "Reference models are not supported"):
+            run({"references": ["polynomial_ridge"]}, [], "unused")
+
+    def test_time_limited_optimizers_retain_best_completed_candidate(self):
+        for method in METHODS:
+            with self.subTest(method=method):
+                now = [0.0]
+                seen = []
+                def objective(genes):
+                    seen.append(genes.copy())
+                    now[0] += 0.6
+                    return float(np.square(genes).sum())
+                result = optimize_until(method, objective, 3, 7, 1.0, 100, clock=lambda: now[0])
+                self.assertEqual(result.evaluations, 2)
+                self.assertEqual(len(result.history), 2)
+                self.assertAlmostEqual(result.score, min(float(np.square(v).sum()) for v in seen))
+                np.testing.assert_allclose(result.genes, min(seen, key=lambda v: float(np.square(v).sum())))
+                self.assertGreaterEqual(now[0], 1.0)
+                self.assertLess(now[0], 1.6)
+                empty = optimize_until(method, objective, 3, 7, 1.0, 100, clock=lambda: 1.0)
+                self.assertEqual(empty.evaluations, 0)
+                self.assertIsNone(empty.genes)
+
+    def test_timed_arm_accounts_for_k_and_candidate_fits(self):
+        X = pd.DataFrame(np.random.default_rng(12).normal(size=(75, 3)), columns=list("abc"))
+        y = (X.a ** 2 + X.b).to_numpy()
+        folds, columns = prepared_folds(X, y, 4)
+        arm = {"name": "timed", "strategy": "construction", "family": "quadratic", "optimizer": "GA",
+               "k_grid": [0, 1, 2], "budget": 2000, "record_search_timing": True, "time_budget_seconds": 0.3}
+        report, definition, trace, _ = run_arm(arm, folds, X, X.iloc[:5], y, y[:5], columns, "ols", None, 4, 1.0, 1.0)
+        self.assertGreater(report["candidate_evaluations"], 0)
+        self.assertEqual(sum(definition["actual_evaluations_by_k"].values()), report["candidate_evaluations"])
+        self.assertEqual(len(trace), report["candidate_evaluations"])
+        self.assertEqual(report["fe_model_fits"], 3 * report["candidate_evaluations"] + 1)
+        self.assertEqual(definition["time_allocation_seconds"], {"0": 0, "1": 0.15, "2": 0.15})
+        self.assertTrue(np.isfinite(report["selected_inner_mae"]))
+
     def test_budget_allocation_and_optimizer_count(self):
         self.assertEqual(allocated_budgets([0, 1, 2, 4], 121, "construction"), {1: 41, 2: 40, 4: 40})
         self.assertEqual(allocated_budgets([0, 1, 2, 4], 160, "combined"),
@@ -103,13 +134,19 @@ class ProtocolTests(unittest.TestCase):
         y = (X.a ** 2 + X.b).to_numpy()
         folds, columns = prepared_folds(X, y, 4)
         arm = {"name": "two_k", "strategy": "construction", "family": "quadratic",
-               "optimizer": "GA", "k_grid": [0, 1, 2], "budget": 81}
+               "optimizer": "GA", "k_grid": [0, 1, 2], "budget": 81, "record_search_timing": True}
         report, definition, trace, signature = run_arm(
             arm, folds, X, X.iloc[:5], y, y[:5], columns, "ols", None, 4, 1.0, 1.0)
         self.assertEqual(report["candidate_evaluations"], 81)
         self.assertEqual(report["fe_model_fits"], 244)
         self.assertEqual(set(definition["inner_scores"]), {"0", "1", "2"})
         self.assertEqual(trace[-1]["global_evaluation"], 81)
+        self.assertTrue(all(t["elapsed_wall_seconds"] >= 0 and t["elapsed_cpu_seconds"] >= 0 for t in trace))
+        self.assertTrue(all(a["elapsed_wall_seconds"] <= b["elapsed_wall_seconds"] and
+                            a["elapsed_cpu_seconds"] <= b["elapsed_cpu_seconds"]
+                            for a, b in zip(trace, trace[1:])))
+        self.assertGreaterEqual(report["runtime_seconds"], trace[-1]["elapsed_wall_seconds"])
+        self.assertGreaterEqual(report["cpu_seconds"], trace[-1]["elapsed_cpu_seconds"])
         self.assertEqual(sum(definition["evaluation_allocation"].values()), 81)
         self.assertEqual(matched_stability(signature, signature), (1.0, 1.0))
 
@@ -123,11 +160,11 @@ class ProtocolTests(unittest.TestCase):
         objective = candidate_fitness(folds, "construction", "quadratic", 1, "ols", None, 1, accounting)
         self.assertTrue(np.isfinite(objective(np.zeros(len(columns)))))
         self.assertEqual(accounting["fits"], 3)
-        parameter, fits, scores = choose_learner("ridge", folds, 1)
-        self.assertIn(parameter, [0.1, 1., 10., 100.])
-        self.assertEqual(fits, 12)
+        parameter, fits, scores = choose_learner("linear_panel_ridge", folds, 1)
+        self.assertIsNone(parameter)
+        self.assertEqual(fits, 3)
         baseline = candidate_fitness(folds, "construction", "quadratic", 0,
-                                     "ridge", parameter, 1, {"fits": 0, "failed_folds": 0})([])
+                                     "linear_panel_ridge", parameter, 1, {"fits": 0, "failed_folds": 0})([])
         self.assertAlmostEqual(baseline, min(scores))
         train = X.iloc[:20]
         prep = fit_preprocessor(train)
@@ -142,15 +179,13 @@ class ProtocolTests(unittest.TestCase):
         X = pd.DataFrame(rng.normal(size=(36, 3)), columns=list("abc"))
         y = (X.a * X.b + X.c).to_numpy()
         folds, columns = prepared_folds(X, y, 4)
-        for model_name in ("ols", "ridge", "forest"):
-            for family, genes, pair in (("quadratic", np.zeros(3), None),
-                                        ("rbf", np.zeros(4), None),
-                                        ("interactions", np.zeros(2), None),
-                                        ("gp", [("*", ("x", 0), ("x", 1))], feature_pair)):
+        for model_name in ("ols", "linear_panel_ols", "linear_panel_ridge", "linear_panel_lasso", "linear_panel_elastic", "linear_panel_huber"):
+            for family, genes in (("quadratic", np.zeros(3)), ("rbf", np.zeros(4)),
+                                  ("interactions", np.zeros(2)), ("hinge", np.zeros(4))):
                 with self.subTest(model=model_name, family=family):
                     accounting = {"fits": 0, "failed_folds": 0, "failed_candidates": 0}
                     score = candidate_fitness(folds, "construction", family, 1, model_name,
-                                              None, 4, accounting, pair)(genes)
+                                              None, 4, accounting)(genes)
                     self.assertTrue(np.isfinite(score))
                     self.assertEqual(accounting["fits"], 3)
 
@@ -163,7 +198,7 @@ class ProtocolTests(unittest.TestCase):
             frame["target"] = X[:, 0] ** 2 + X[:, 1]
             frame.to_csv(root / "input.csv", index=False)
             dataset = [{"name": "synthetic", "stage": "exploration", "path": "input.csv", "target": "target"}]
-            config = read_config(Path(__file__).resolve().parents[1] / "configs/rq1.yaml")
+            config = read_config(Path(__file__).resolve().parents[1] / "configs/phase_1/adaptive.yaml")
             first = run(config, dataset, root / "one", smoke=True, data_root=root)
             self.assertEqual({row["arm"] for row in first}, {"no_fe", "selection", "construction", "combined"})
             self.assertEqual(sum(row["candidate_evaluations"] for row in first), 120)
@@ -186,7 +221,7 @@ class ProtocolTests(unittest.TestCase):
             self.assertNotEqual(first[0]["mae"], second[0]["mae"])
             with self.assertRaises(FileExistsError):
                 run(config, dataset, root / "one", smoke=True, data_root=root)
-            final = read_config(Path(__file__).resolve().parents[1] / "configs/final.yaml")
+            final = {"study": "final", "locked": False}
             with self.assertRaisesRegex(ValueError, "Lock the final shortlist"):
                 run(final, dataset, root / "never", smoke=True, data_root=root)
 
@@ -199,7 +234,8 @@ class ProtocolTests(unittest.TestCase):
             frame.to_csv(root / "input.csv", index=False)
             datasets = [{"name": "synthetic", "stage": "exploration", "path": "input.csv", "target": "target"}]
             arm = {"name": "quadratic", "strategy": "construction", "family": "quadratic",
-                   "optimizer": "GA", "k_grid": [0, 1, 2], "budget": 80}
+                   "optimizer": "GA", "k_grid": [0, 1, 2], "budget": 80,
+                   "record_search_timing": True}
             config = {"study": "rq4", "outer_seeds": [101], "search_seeds": [11],
                       "inner_folds": 3, "learners": ["ols"],
                       "arms": [arm, {**arm, "name": "second"}]}
@@ -219,6 +255,11 @@ class ProtocolTests(unittest.TestCase):
             self.assertEqual(json.loads((checkpoints / "arm-0-0-0-0-1.json").read_text())["evaluations"], 40)
             self.assertEqual(len(pd.read_csv(root / "resumed/runs.csv")), 2)
             resumed = run(config, datasets, root / "resumed", data_root=root)
+            timed = pd.read_csv(root / "resumed/convergence.csv")
+            for _, group in timed.groupby("arm"):
+                self.assertTrue(group.elapsed_wall_seconds.is_monotonic_increasing)
+                self.assertTrue(group.elapsed_cpu_seconds.is_monotonic_increasing)
+                self.assertEqual(group.elapsed_wall_seconds.notna().sum(), 80)
             fresh = run(config, datasets, root / "fresh", data_root=root)
             self.assertEqual(len(resumed), len(fresh))
             for left, right in zip(resumed, fresh):

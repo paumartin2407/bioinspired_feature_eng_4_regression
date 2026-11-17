@@ -1,7 +1,11 @@
+import warnings
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet, HuberRegressor
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.exceptions import ConvergenceWarning
 
 from .strategies import transform
 
@@ -27,51 +31,71 @@ class EvaluationCounter:
         return score
 
 
-def learner(name, parameter=None, seed=0, forest_jobs=1):
+def learner(name, parameter=None, seed=0):
+    if name.startswith("linear_panel_"):
+        models = {
+            "linear_panel_ols": lambda: LinearRegression(),
+            "linear_panel_ridge": lambda: Ridge(alpha=1.0),
+            "linear_panel_lasso": lambda: Lasso(alpha=0.01, max_iter=10000),
+            "linear_panel_elastic": lambda: ElasticNet(alpha=0.01, l1_ratio=0.5, max_iter=10000),
+            "linear_panel_huber": lambda: HuberRegressor(epsilon=1.35, alpha=0.0001, max_iter=1000),
+        }
+        if name not in models:
+            raise ValueError(f"Unknown learner: {name}")
+        # Both scalers fit inside each training fold; predictions are restored
+        # to original target units before the validation metric is computed.
+        return make_pipeline(StandardScaler(), TransformedTargetRegressor(
+            regressor=models[name](), transformer=StandardScaler()))
     if name == "ols":
         return LinearRegression()
-    if name == "ridge":
-        return Ridge(alpha=1.0 if parameter is None else parameter)
-    if name == "forest":
-        return RandomForestRegressor(n_estimators=100, min_samples_leaf=3 if parameter is None else parameter,
-                                     random_state=seed, n_jobs=forest_jobs)
     raise ValueError(f"Unknown learner: {name}")
 
 
-PARAMETERS = {"ols": [None], "ridge": [0.1, 1.0, 10.0, 100.0], "forest": [1, 3, 8]}
+PARAMETERS = {"ols": [None],
+              "linear_panel_ols": [None], "linear_panel_ridge": [None],
+              "linear_panel_lasso": [None], "linear_panel_elastic": [None], "linear_panel_huber": [None]}
 
 
-def choose_learner(name, folds, seed, forest_jobs=1):
-    """Pre-tune on original features, then freeze the choice for all FE arms."""
+def fit_with_diagnostics(model, X, y, accounting):
+    """Count fits with convergence warnings without treating them as successes without notice."""
+    with warnings.catch_warnings(record=True) as seen:
+        warnings.simplefilter("always", ConvergenceWarning)
+        model.fit(X, y)
+    if accounting is not None and any(issubclass(w.category, ConvergenceWarning) for w in seen):
+        accounting["convergence_warning_fits"] = accounting.get("convergence_warning_fits", 0) + 1
+    for warning in seen:
+        if not issubclass(warning.category, ConvergenceWarning):
+            warnings.warn_explicit(warning.message, warning.category, warning.filename, warning.lineno)
+    return model
+
+
+def choose_learner(name, folds, seed, accounting=None):
+    """Score the fixed learner on original features for the no-FE baseline."""
     scores = []
     fits = 0
     for parameter in PARAMETERS[name]:
         fold_scores = []
         for train, val, yt, yv, *_ in folds:
-            model = learner(name, parameter, seed, forest_jobs).fit(train, yt)
+            model = fit_with_diagnostics(learner(name, parameter, seed), train, yt, accounting)
             fits += 1
             fold_scores.append(mean_absolute_error(yv, model.predict(val)))
         scores.append(float(np.mean(fold_scores)))
     return PARAMETERS[name][int(np.argmin(scores))], fits, scores
 
 
-def candidate_fitness(folds, strategy, family, k, name, parameter, seed, accounting,
-                      pair_transform=None, forest_jobs=1):
+def candidate_fitness(folds, strategy, family, k, name, parameter, seed, accounting):
     def score(genes):
         fold_scores = []
         for train, val, yt, yv, *_ in folds:
             try:
                 with np.errstate(over="raise", invalid="raise"):
-                    if pair_transform is None:
-                        transformed_train = transform(train, strategy, family, genes, k)
-                        transformed_val = transform(val, strategy, family, genes, k)
-                    else:
-                        transformed_train, transformed_val = pair_transform(train, val, genes)
+                    transformed_train = transform(train, strategy, family, genes, k)
+                    transformed_val = transform(val, strategy, family, genes, k)
                 if not np.isfinite(transformed_train).all() or not np.isfinite(transformed_val).all():
                     raise ValueError("Nonfinite feature")
-                model = learner(name, parameter, seed, forest_jobs)
+                model = learner(name, parameter, seed)
                 accounting["fits"] += 1
-                model.fit(transformed_train, yt)
+                fit_with_diagnostics(model, transformed_train, yt, accounting)
                 prediction = model.predict(transformed_val)
                 if not np.isfinite(prediction).all():
                     raise ValueError("Nonfinite prediction")

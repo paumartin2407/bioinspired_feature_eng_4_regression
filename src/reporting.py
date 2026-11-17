@@ -10,9 +10,10 @@ import pandas as pd
 def summarize(runs):
     frame = pd.read_csv(runs)
     frame = frame.loc[frame.arm != "no_fe"]
-    measures = ["mae", "mae_reduction_pct", "rmse", "r2", "selected_k", "transformed_dim",
-                "candidate_evaluations", "fe_model_fits", "failed_candidates", "outer_failure",
-                "runtime_seconds"]
+    measures = ["mae", "delta_mae", "mae_reduction_pct", "selected_inner_mae", "baseline_inner_mae", "rmse", "r2", "p95_abs_residual",
+                "p99_abs_residual", "max_abs_residual", "selected_k", "transformed_dim",
+                "candidate_evaluations", "fe_model_fits", "failed_folds", "failed_candidates", "convergence_warning_fits",
+                "outer_failure", "runtime_seconds", "cpu_seconds", "search_wall_seconds"]
     measures = [name for name in measures if name in frame]
     split = frame.groupby(["dataset", "learner", "arm", "split"], as_index=False)[measures].mean()
     dataset = split.groupby(["dataset", "learner", "arm"], as_index=False)[measures].mean()
